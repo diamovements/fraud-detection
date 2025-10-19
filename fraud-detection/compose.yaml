@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: fraud_detection
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    environment:
+      SPRING_DATASOURCE_URL: ${DB_URL}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    command: ["java", "-jar", "/app/translator.jar"]
+
+  flyway:
+    image: flyway/flyway:11.14.1
+    environment:
+      FLYWAY_URL: ${DB_URL}
+      FLYWAY_USER: ${DB_USERNAME}
+      FLYWAY_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./src/main/resources/db/migration:/flyway/sql
+    depends_on:
+      - postgres
+    entrypoint: [ "flyway", "migrate" ]
+volumes:
+  postgres_data:

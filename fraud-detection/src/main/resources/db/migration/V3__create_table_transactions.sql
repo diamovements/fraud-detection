@@ -1,0 +1,20 @@
+CREATE TABLE transaction (
+     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     original_transaction_id VARCHAR(255) NOT NULL UNIQUE,
+     correlation_id VARCHAR(255) NOT NULL UNIQUE,
+     timestamp TIMESTAMP NOT NULL,
+     sender_account VARCHAR(255) NOT NULL,
+     receiver_account VARCHAR(255) NOT NULL,
+     amount NUMERIC(15,2) NOT NULL,
+     transaction_type VARCHAR(255) NOT NULL,
+     merchant_category VARCHAR(255),
+     location VARCHAR(255),
+     device_used VARCHAR(255),
+     time_since_last_transaction TIMESTAMP,
+     payment_channel VARCHAR(255),
+     ip_address VARCHAR(255),
+     device_hash VARCHAR(255),
+     processed_at TIMESTAMP,
+     is_suspicious BOOLEAN,
+     triggered_rules TEXT
+);
