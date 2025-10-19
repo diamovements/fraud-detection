@@ -35,8 +35,6 @@ public class ThresholdRule extends Rule {
         this.ruleType = RuleType.THRESHOLD;
     }
 
-    public UUID getId() { return id;}
-
     @Override
     public RuleResult evaluate(TransactionRequest transactionRequest, RuleContext ruleContext) {
         try {
@@ -100,6 +98,8 @@ public class ThresholdRule extends Rule {
         return switch (operator) {
             case CONTAINS -> actual.contains(expected);
             case NOT_CONTAINS -> !actual.contains(expected);
+            case EQUAL -> actual.equals(expected);
+            case NOT_EQUAL -> !actual.equals(expected);
             default -> throw new IllegalArgumentException("Illegal operator used: " + operator);
         };
     }
