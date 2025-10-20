@@ -1,0 +1,128 @@
+package hackathon.project.fraud_detection.rules.cache;
+
+import hackathon.project.fraud_detection.api.dto.request.CreateRuleRequest;
+import hackathon.project.fraud_detection.rules.model.RuleType;
+import hackathon.project.fraud_detection.rules.validator.ThresholdJsonParamsChecker;
+import hackathon.project.fraud_detection.storage.entity.RuleEntity;
+import hackathon.project.fraud_detection.storage.repository.RuleRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.*;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+@Component
+@Slf4j
+@RequiredArgsConstructor
+@CacheConfig(cacheNames = {"allRules"})
+public class RuleCacheService {
+
+    private final RuleRepository ruleRepository;
+    private final ThresholdJsonParamsChecker thresholdJsonParamsChecker;
+
+    @Cacheable(key = "'all'", value = "allRules")
+    public List<RuleEntity> getAllRules() {
+        log.info("Getting all rules");
+        return ruleRepository.findAll();
+    }
+
+    @Caching(
+            put = {
+                    @CachePut(value = "ruleById", key = "#result.id"),
+            },
+            evict = {
+                    @CacheEvict(value = "allRules", key = "'all'")
+            }
+    )
+    public RuleEntity createRule(
+            CreateRuleRequest request,
+            UserDetails userDetails
+    ) {
+        RuleEntity newRule = new RuleEntity();
+        setRuleFields(newRule, request, userDetails);
+        log.info("Creating new rule: {}", newRule.getId());
+        ruleRepository.save(newRule);
+        return newRule;
+    }
+
+    @Caching(
+            put = {
+                    @CachePut(value = "ruleById", key = "#id"),
+            },
+            evict = {
+                    @CacheEvict(value = "allRules", key = "'all'")
+            }
+    )
+    public RuleEntity updateRule(
+            CreateRuleRequest request,
+            UUID id,
+            UserDetails userDetails
+    ) {
+        RuleEntity updatedRule = ruleRepository.findRuleEntityById(id);
+        setRuleFields(updatedRule, request, userDetails);
+        log.info("Updating rule: {}", updatedRule.getId());
+        ruleRepository.save(updatedRule);
+        return updatedRule;
+    }
+
+    @Caching(
+            put = {
+                    @CachePut(value = "ruleById", key = "#id"),
+            },
+            evict = {
+                    @CacheEvict(value = "allRules", key = "'all'")
+            }
+    )
+    public RuleEntity setToggle(UUID id) {
+        RuleEntity toggledRule = ruleRepository.findRuleEntityById(id);
+        toggledRule.setEnabled(!toggledRule.isEnabled());
+        log.info("Setting toggle for rule: {}", toggledRule.getId());
+
+        ruleRepository.save(toggledRule);
+        return toggledRule;
+    }
+
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "allRules", key = "'all'"),
+                    @CacheEvict(value = "ruleById", key = "#id")
+            }
+    )
+    public void deleteRule(UUID id) {
+        log.info("Deleting rule: {}", id);
+        ruleRepository.deleteRuleEntityById(id);
+    }
+
+    private void setRuleFields(
+            RuleEntity ruleEntity,
+            CreateRuleRequest request,
+            UserDetails userDetails) {
+        if (!checkJsonParams(request.params(), request.type())) {
+            throw new IllegalArgumentException("Validation failed");
+        }
+        ruleEntity.setParams(request.params());
+        ruleEntity.setType(request.type());
+        ruleEntity.setPriority(request.priority());
+        ruleEntity.setVersion(request.version());
+        ruleEntity.setEnabled(request.enabled());
+
+        ruleEntity.setUpdatedAt(LocalDateTime.now());
+        ruleEntity.setUpdatedBy(userDetails.getUsername());
+    }
+
+    private boolean checkJsonParams(String params, RuleType ruleType) {
+        return switch (ruleType) {
+            case RuleType.THRESHOLD -> thresholdJsonParamsChecker.checkJsonParams(params, ruleType);
+            case RuleType.COMPOSITE -> false; //заглушки
+            case RuleType.PATTERN -> false;
+            case RuleType.ML -> false;
+        };
+    }
+}

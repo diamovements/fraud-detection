@@ -31,9 +31,7 @@ public class RuleEngine {
         boolean isSuspicious = false;
 
         List<RuleEntity> rules = ruleRepository.findAll();
-        rules.forEach(rule -> {
-            log.info("Found rule id: {}", rule.getId());
-        });
+        rules.forEach(rule -> log.info("Found rule id: {}", rule.getId()));
 
         for (RuleEntity ruleEntity : rules) {
             if (!ruleEntity.isEnabled()) continue;
