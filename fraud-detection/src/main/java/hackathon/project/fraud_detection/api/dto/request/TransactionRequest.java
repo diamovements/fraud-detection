@@ -1,9 +1,12 @@
 package hackathon.project.fraud_detection.api.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.Valid;
+import hackathon.project.fraud_detection.storage.entity.TransactionEntity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
@@ -53,4 +56,24 @@ public record TransactionRequest(
     @JsonProperty("device_hash")
     String deviceHash
 
-) { }
+) {
+    public TransactionRequest(TransactionEntity transactionEntity){
+        this(
+                transactionEntity.getOriginalTransactionId(),
+                transactionEntity.getTimestamp(),
+                transactionEntity.getSenderAccount(),
+                transactionEntity.getReceiverAccount(),
+                transactionEntity.getAmount(),
+                transactionEntity.getTransactionType(),
+                transactionEntity.getMerchantCategory(),
+                transactionEntity.getLocation(),
+                transactionEntity.getDeviceUsed(),
+                transactionEntity.getTimeSinceLastTransaction(),
+                transactionEntity.getPaymentChannel(),
+                transactionEntity.getIpAddress(),
+                transactionEntity.getDeviceHash()
+        );
+    }
+
+
+}

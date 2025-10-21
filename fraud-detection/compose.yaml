@@ -11,6 +11,32 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - fraud-network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_PROCESS_ROLES: broker,controller
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    networks:
+      - fraud-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+    networks:
+      - fraud-network
 
   app:
     build: .
@@ -23,6 +49,8 @@ services:
     depends_on:
       - postgres
     command: ["java", "-jar", "/app/translator.jar"]
+    networks:
+      - fraud-network
 
   flyway:
     image: flyway/flyway:11.14.1
@@ -35,5 +63,12 @@ services:
     depends_on:
       - postgres
     entrypoint: [ "flyway", "migrate" ]
+    networks:
+      - fraud-network
+
 volumes:
   postgres_data:
+
+networks:
+  fraud-network:
+    driver: bridge
