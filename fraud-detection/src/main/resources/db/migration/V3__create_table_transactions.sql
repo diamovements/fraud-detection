@@ -17,5 +17,6 @@ CREATE TABLE transaction (
      device_hash VARCHAR(255),
      processed_at TIMESTAMP,
      is_suspicious BOOLEAN,
-     triggered_rules TEXT
+     triggered_rules TEXT,
+     reason TEXT
 );

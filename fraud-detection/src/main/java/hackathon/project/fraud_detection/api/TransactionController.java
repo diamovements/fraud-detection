@@ -27,10 +27,6 @@ public class TransactionController {
             TransactionResponse response = TransactionResponse.accepted(MDC.get("correlationId"));
             return ResponseEntity.accepted().body(response);
         }
-        catch( DBWritingException e){
-            return ResponseEntity.internalServerError()
-                    .body(TransactionResponse.error(e.getCause().getMessage()));
-        }
         catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body(TransactionResponse.error(e.getCause().getMessage()));

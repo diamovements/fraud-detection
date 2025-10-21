@@ -9,8 +9,10 @@ import hackathon.project.fraud_detection.storage.entity.TransactionStatus;
 import hackathon.project.fraud_detection.storage.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -20,18 +22,29 @@ public class KafkaConsumerService {
     private final TransactionRepository transactionRepository;
 
     @KafkaListener(topics = "transaction_topic", groupId = "my-group")
+    @Transactional
     public void listenNotifications(TransactionMessage message) {
-        log.info("Transaction was taken from queue "); //не создастся ли тут новый corellationId?
+        log.info("Transaction was taken from queue"); //не создастся ли тут новый corellationId?
         TransactionEntity transaction = TransactionEntity.toTransactionEntity(message);
         TransactionRequest transactionRequest = new TransactionRequest(transaction);
         RuleEvaluationResult result = ruleEngine.evaluate(transactionRequest);
         transaction.setSuspicious(result.isSuspicious());
-        transaction.setStatus(result.isSuspicious() ? TransactionStatus.SUSPICIOUS : TransactionStatus.APPROVED );
+        transaction.setStatus(result.isSuspicious() ? TransactionStatus.SUSPICIOUS : TransactionStatus.APPROVED);
         transaction.setTriggeredRules(String.join(",", result.getTriggeredRuleIds().toString()));
+        transaction.setReason(result.getReason());
+
+        log.info("Transaction was processed and marked as {}. Reasons: {}",
+                transaction.getStatus(),
+                transaction.getReason());
+
         try {
-            transactionRepository.save(transaction);
+            transactionRepository.updateTransactionEntityById(
+                    transaction.getOriginalTransactionId(),
+                    transaction.getStatus(),
+                    transaction.getReason()
+            );
         } catch(Exception exception){
-            log.info("ERROR: Ошибка обновления записи в БД");
+            log.info("ERROR: Ошибка обновления записи в БД: {}", exception.getMessage());
         }
     }
 

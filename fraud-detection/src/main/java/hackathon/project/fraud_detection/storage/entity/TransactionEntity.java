@@ -12,6 +12,7 @@ import org.slf4j.MDC;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -82,6 +83,9 @@ public class TransactionEntity {
     @Column(name = "triggered_rules")
     private String triggeredRules;
 
+    @Column(name = "reason")
+    private List<String> reason;
+
     public static TransactionEntity toTransactionEntity(TransactionRequest transactionRequest) {
         TransactionEntity entity = new TransactionEntity();
         entity.setOriginalTransactionId(transactionRequest.transactionId());
@@ -121,6 +125,7 @@ public class TransactionEntity {
         entity.setTimeSinceLastTransaction(message.timeSinceLastTransaction());
         entity.setPaymentChannel(message.paymentChannel());
         entity.setMerchantCategory(message.merchantCategory());
+        entity.setReason(message.reason());
 
         return entity;
     }

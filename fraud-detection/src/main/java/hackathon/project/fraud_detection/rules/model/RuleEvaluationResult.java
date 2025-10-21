@@ -15,4 +15,5 @@ public class RuleEvaluationResult {
     private final boolean suspicious;
     private final List<UUID> triggeredRuleIds;
     private final List<RuleResult> ruleResults;
+    private final List<String> reason;
 }

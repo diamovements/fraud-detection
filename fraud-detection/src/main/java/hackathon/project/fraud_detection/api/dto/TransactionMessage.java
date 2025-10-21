@@ -9,13 +9,15 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record TransactionMessage(UUID id, TransactionStatus status, String originalTransactionId, String correlationId,
                                  LocalDateTime timestamp, String senderAccount, String receiverAccount, BigDecimal amount,
                                  String transactionType, String merchantCategory, String location, String deviceUsed,
                                  LocalDateTime timeSinceLastTransaction, String paymentChannel, String ipAddress,
-                                 String deviceHash, LocalDateTime processedAt, Boolean suspicious, String triggeredRules
+                                 String deviceHash, LocalDateTime processedAt, Boolean suspicious, String triggeredRules,
+                                 List<String> reason
 ) {
     public TransactionMessage(TransactionEntity transactionEntity){
         this(
@@ -37,7 +39,8 @@ public record TransactionMessage(UUID id, TransactionStatus status, String origi
                 transactionEntity.getDeviceHash(),
                 transactionEntity.getProcessedAt(),
                 transactionEntity.getSuspicious(),
-                transactionEntity.getTriggeredRules()
+                transactionEntity.getTriggeredRules(),
+                transactionEntity.getReason()
         );
     }
 }

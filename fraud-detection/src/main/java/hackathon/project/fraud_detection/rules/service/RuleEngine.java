@@ -28,6 +28,7 @@ public class RuleEngine {
     public RuleEvaluationResult evaluate(TransactionRequest transaction) {
         List<RuleResult> ruleResults = new ArrayList<>();
         List<UUID> triggeredRuleIds = new ArrayList<>();
+        List<String> reasons = new ArrayList<>();
         boolean isSuspicious = false;
 
         List<RuleEntity> rules = ruleRepository.findAll();
@@ -37,13 +38,14 @@ public class RuleEngine {
             if (!ruleEntity.isEnabled()) continue;
             if (ruleEntity.getType().equals(RuleType.THRESHOLD)) {
                 var thresholdRule = ruleFactory.createRule(ruleEntity);
-                log.info("Current threshold rule: {}", thresholdRule.getId());
+                log.info("Current threshold rule: {}", ruleEntity.getId());
                 RuleResult thresholdEvaluationResult = thresholdRule.evaluate(transaction, ruleContext);
                 ruleResults.add(thresholdEvaluationResult);
                 if (thresholdEvaluationResult.triggered()) {
-                    log.info("Threshold rule was triggered: {}", thresholdRule.getId());
+                    log.info("Threshold rule was triggered: {}", ruleEntity.getId());
                     triggeredRuleIds.add(thresholdRule.getId());
                     isSuspicious = true;
+                    reasons.add(thresholdEvaluationResult.reason());
                 }
             } else if (ruleEntity.getType().equals(RuleType.PATTERN)) {
                 //todo
@@ -54,6 +56,6 @@ public class RuleEngine {
             }
         }
 
-        return new RuleEvaluationResult(isSuspicious, triggeredRuleIds, ruleResults);
+        return new RuleEvaluationResult(isSuspicious, triggeredRuleIds, ruleResults, reasons);
     }
 }
