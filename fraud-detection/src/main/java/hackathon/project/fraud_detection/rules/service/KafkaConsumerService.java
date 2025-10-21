@@ -5,6 +5,7 @@ import hackathon.project.fraud_detection.api.dto.request.TransactionRequest;
 import hackathon.project.fraud_detection.exceptions.DBWritingException;
 import hackathon.project.fraud_detection.rules.model.RuleEvaluationResult;
 import hackathon.project.fraud_detection.storage.entity.TransactionEntity;
+import hackathon.project.fraud_detection.storage.entity.TransactionStatus;
 import hackathon.project.fraud_detection.storage.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ public class KafkaConsumerService {
         TransactionRequest transactionRequest = new TransactionRequest(transaction);
         RuleEvaluationResult result = ruleEngine.evaluate(transactionRequest);
         transaction.setSuspicious(result.isSuspicious());
+        transaction.setStatus(result.isSuspicious() ? TransactionStatus.SUSPICIOUS : TransactionStatus.APPROVED );
         transaction.setTriggeredRules(String.join(",", result.getTriggeredRuleIds().toString()));
         try {
             transactionRepository.save(transaction);
