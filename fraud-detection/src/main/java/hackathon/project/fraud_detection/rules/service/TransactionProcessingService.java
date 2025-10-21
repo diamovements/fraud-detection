@@ -1,6 +1,9 @@
 package hackathon.project.fraud_detection.rules.service;
 
+import hackathon.project.fraud_detection.api.dto.TransactionMessage;
 import hackathon.project.fraud_detection.api.dto.request.TransactionRequest;
+import hackathon.project.fraud_detection.exceptions.DBWritingException;
+import hackathon.project.fraud_detection.exceptions.KafkaWritingError;
 import hackathon.project.fraud_detection.rules.model.RuleEvaluationResult;
 import hackathon.project.fraud_detection.storage.entity.TransactionEntity;
 import hackathon.project.fraud_detection.storage.repository.TransactionRepository;
@@ -14,26 +17,30 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class TransactionProcessingService {
     private final TransactionRepository transactionRepository;
-    private final RuleEngine ruleEngine;
+    private final KafkaProducerService kafkaProducerService;
 
-    public boolean processTransaction(TransactionRequest transactionRequest) {
+    public void processTransaction(TransactionRequest transactionRequest) {
 
-        RuleEvaluationResult result = ruleEngine.evaluate(transactionRequest);
+        // валидация (+ как защита от ретраев включить проверку что id транзакции не совпадает с имеющими в кэше)
+        // если валидация пройдена, а иначе вернуть 400
+        TransactionEntity transaction = TransactionEntity
+                .toTransactionEntity(transactionRequest);
+        transaction.setCorrelationId(MDC.get("correlationId"));
 
-        if (result.isSuspicious()) {
-            TransactionEntity transaction = TransactionEntity
-                    .toTransactionEntity(transactionRequest);
-            transaction.setCorrelationId(MDC.get("correlationId"));
-            transaction.setSuspicious(result.isSuspicious());
-            transaction.setTriggeredRules(String.join(",", result.getTriggeredRuleIds().toString()));
-
+        try {
             transactionRepository.save(transaction);
-
+        } catch(Exception exception){
+            log.info("ERROR: Ошибка записи в БД");
+            throw new DBWritingException("Ошибка записи в БД");
         }
-        log.info("Transaction processed: suspicious: {}, triggered rules ids: {}",
-                result.isSuspicious(), result.getTriggeredRuleIds());
 
-        return result.isSuspicious();
+        try {
+            kafkaProducerService.sendMessage(new TransactionMessage(transaction));
+        } catch (Exception exception){
+            log.info("ERROR: Ошибка записи в очередь");
+            throw new KafkaWritingError("Ошибка записи в очередь");
+        }
+
     }
 
 }

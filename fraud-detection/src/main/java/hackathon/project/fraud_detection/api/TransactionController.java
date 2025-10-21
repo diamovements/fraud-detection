@@ -2,6 +2,7 @@ package hackathon.project.fraud_detection.api;
 
 import hackathon.project.fraud_detection.api.dto.request.TransactionRequest;
 import hackathon.project.fraud_detection.api.dto.response.TransactionResponse;
+import hackathon.project.fraud_detection.exceptions.DBWritingException;
 import hackathon.project.fraud_detection.rules.service.TransactionProcessingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,15 +23,15 @@ public class TransactionController {
     @PostMapping("/transactions")
     public ResponseEntity<?> processTransaction(@Valid @RequestBody TransactionRequest transactionRequest) {
         try {
-            boolean isSuspicious = transactionProcessingService.processTransaction(transactionRequest);
-            String status = isSuspicious ? "SUSPICIOUS" : "APPROVED";
-            String message = isSuspicious ?
-                    "Transaction flagged as suspicious" : "Transaction processed successfully";
-
-            TransactionResponse response = new TransactionResponse(status, MDC.get("correlationId"), message);
+            transactionProcessingService.processTransaction(transactionRequest);
+            TransactionResponse response = TransactionResponse.accepted(MDC.get("correlationId"));
             return ResponseEntity.accepted().body(response);
-
-        } catch (Exception e) {
+        }
+        catch( DBWritingException e){
+            return ResponseEntity.internalServerError()
+                    .body(TransactionResponse.error(e.getCause().getMessage()));
+        }
+        catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body(TransactionResponse.error(e.getCause().getMessage()));
         }

@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS fraud_rules;
 CREATE TABLE fraud_rules (
      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
      type VARCHAR(20) NOT NULL,
