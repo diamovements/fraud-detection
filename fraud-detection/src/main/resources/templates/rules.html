@@ -54,6 +54,10 @@
             max-height: 150px;
             overflow-y: auto;
         }
+
+        .modal-alert {
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -125,6 +129,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <div id="modalAlertContainer" class="modal-alert"></div>
+
                 <form id="ruleForm">
                     <input type="hidden" id="ruleId">
                     <div class="row">
@@ -145,8 +151,9 @@
                                 <input type="number" class="form-control" id="rulePriority" min="1" max="100" required>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Версия *</label>
-                                <input type="number" class="form-control" id="ruleVersion" min="1" max="100" required>
+                                <label class="form-label">Имя *</label>
+                                <input type="text" class="form-control" id="ruleName" required
+                                       placeholder="Например: amount_more_than_2000">
                             </div>
                         </div>
                     </div>
@@ -243,6 +250,7 @@
                                     <span class="badge ${rule.enabled ? 'bg-success' : 'bg-secondary'} status-badge">
                                         ${rule.enabled ? 'Активно' : 'Неактивно'}
                                     </span>
+                                    <span class="badge bg-info status-badge ms-2">${rule.name}</span>
                                     <span class="badge bg-info status-badge ms-2">Приоритет: ${rule.priority}</span>
                                     <span class="badge bg-light text-dark status-badge ms-2">v${rule.version}</span>
                                 </div>
@@ -286,6 +294,7 @@
         document.getElementById('modalTitle').textContent = 'Создание правила';
         document.getElementById('ruleForm').reset();
         document.getElementById('ruleId').value = '';
+        clearModalAlerts();
         ruleModal.show();
     }
 
@@ -295,12 +304,13 @@
 
         document.getElementById('modalTitle').textContent = 'Редактирование правила';
         document.getElementById('ruleId').value = rule.id;
+        document.getElementById('ruleName').value = rule.name;
         document.getElementById('ruleType').value = rule.type;
         document.getElementById('rulePriority').value = rule.priority;
-        document.getElementById('ruleVersion').value = rule.version;
         document.getElementById('ruleParams').value = formatJson(rule.params);
         document.getElementById('ruleEnabled').checked = rule.enabled;
 
+        clearModalAlerts();
         ruleModal.show();
     }
 
@@ -313,9 +323,9 @@
 
         try {
             const ruleData = {
+                name: document.getElementById('ruleName').value,
                 type: document.getElementById('ruleType').value,
                 priority: parseInt(document.getElementById('rulePriority').value),
-                version: parseInt(document.getElementById('ruleVersion').value),
                 enabled: document.getElementById('ruleEnabled').checked,
                 params: document.getElementById('ruleParams').value
             };
@@ -323,7 +333,7 @@
             try {
                 JSON.parse(ruleData.params);
             } catch (e) {
-                showAlert('Ошибка в формате JSON параметров', 'danger');
+                showModalAlert('Ошибка в формате JSON параметров', 'danger');
                 return;
             }
 
@@ -331,28 +341,29 @@
             const ruleId = document.getElementById('ruleId').value;
 
             let response;
+            let url;
+            let method;
+
             if (ruleId) {
-                response = await fetch(`/api/rules/update/${ruleId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': 'Bearer ' + token,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(ruleData)
-                });
+                url = `/api/rules/update/${ruleId}`;
+                method = 'PUT';
             } else {
-                response = await fetch('/api/rules/create', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + token,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(ruleData)
-                });
+                url = '/api/rules/create';
+                method = 'POST';
             }
 
+            response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(ruleData)
+            });
+
             if (!response.ok) {
-                throw new Error('Ошибка сохранения правила');
+                let errorMessage = 'Ошибка парсинга json. Проверьте корректность параметров';
+                throw new Error(errorMessage);
             }
 
             ruleModal.hide();
@@ -360,7 +371,8 @@
             loadRules();
 
         } catch (error) {
-            showAlert('Ошибка при сохранении правила: ' + error.message, 'danger');
+            // Показываем ошибку в модальном окне, а не в основном контейнере
+            showModalAlert('Ошибка при сохранении правила: ' + error.message, 'danger');
         }
     }
 
@@ -433,6 +445,24 @@
         setTimeout(() => {
             alert.remove();
         }, 5000);
+    }
+
+    function showModalAlert(message, type) {
+        const container = document.getElementById('modalAlertContainer');
+        clearModalAlerts();
+
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+        container.appendChild(alert);
+    }
+
+    function clearModalAlerts() {
+        const container = document.getElementById('modalAlertContainer');
+        container.innerHTML = '';
     }
 
     function showComingSoon(feature) {

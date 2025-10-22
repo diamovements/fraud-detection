@@ -7,5 +7,6 @@ CREATE TABLE fraud_rules (
      params JSONB NOT NULL,
      version INTEGER NOT NULL DEFAULT 1,
      updatedat TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-     updatedby VARCHAR(100) NOT NULL
+     updatedby VARCHAR(100) NOT NULL,
+     name VARCHAR(255) NOT NULL UNIQUE
 );

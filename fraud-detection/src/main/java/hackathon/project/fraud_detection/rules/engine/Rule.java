@@ -14,5 +14,6 @@ public abstract class Rule {
     UUID id;
     RuleType ruleType;
     int priority;
-    abstract public RuleResult evaluate(TransactionRequest transactionRequest, RuleContext ruleContext);
+    String name;
+    abstract public RuleResult evaluate(TransactionRequest transactionRequest);
 }

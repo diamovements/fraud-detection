@@ -1,4 +1,4 @@
-INSERT INTO fraud_rules (id, type, enabled, priority, params, version, updatedat, updatedby)
+INSERT INTO fraud_rules (id, type, enabled, priority, params, version, updatedat, updatedby, name)
 VALUES (
            gen_random_uuid(),
            'THRESHOLD',
@@ -11,9 +11,10 @@ VALUES (
            }'::jsonb,
            1,
            CURRENT_TIMESTAMP,
-           'admin'
+           'admin',
+               'amount_more_than_150'
        );
-INSERT INTO fraud_rules (id, type, enabled, priority, params, version, updatedat, updatedby)
+INSERT INTO fraud_rules (id, type, enabled, priority, params, version, updatedat, updatedby, name)
 VALUES (
            gen_random_uuid(),
            'THRESHOLD',
@@ -26,9 +27,10 @@ VALUES (
            }'::jsonb,
            1,
            CURRENT_TIMESTAMP,
-           'admin'
+           'admin',
+               'night_hours'
        );
-INSERT INTO fraud_rules (id, type, enabled, priority, params, version, updatedat, updatedby)
+INSERT INTO fraud_rules (id, type, enabled, priority, params, version, updatedat, updatedby, name)
 VALUES (
            gen_random_uuid(),
            'THRESHOLD',
@@ -41,5 +43,6 @@ VALUES (
            }'::jsonb,
            1,
            CURRENT_TIMESTAMP,
-           'admin'
+           'admin',
+               'transaction_is_withdrawal'
        );

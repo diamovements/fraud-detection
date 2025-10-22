@@ -7,7 +7,7 @@ import hackathon.project.fraud_detection.rules.model.RuleResult;
 public class PatternRule extends Rule {
 
     @Override
-    public RuleResult evaluate(TransactionRequest transactionRequest, RuleContext ruleContext) {
+    public RuleResult evaluate(TransactionRequest transactionRequest) {
         return null;
     }
 }
