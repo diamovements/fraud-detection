@@ -31,17 +31,15 @@ public class KafkaConsumerService {
         transaction.setSuspicious(result.isSuspicious());
         transaction.setStatus(result.isSuspicious() ? TransactionStatus.SUSPICIOUS : TransactionStatus.APPROVED);
         transaction.setTriggeredRules(String.join(",", result.getTriggeredRuleIds().toString()));
-        transaction.setReason(result.getReason());
 
         log.info("Transaction was processed and marked as {}. Reasons: {}",
                 transaction.getStatus(),
-                transaction.getReason());
+                result.getReason());
 
         try {
             transactionRepository.updateTransactionEntityById(
                     transaction.getOriginalTransactionId(),
-                    transaction.getStatus(),
-                    transaction.getReason()
+                    transaction.getStatus()
             );
         } catch(Exception exception){
             log.info("ERROR: Ошибка обновления записи в БД: {}", exception.getMessage());

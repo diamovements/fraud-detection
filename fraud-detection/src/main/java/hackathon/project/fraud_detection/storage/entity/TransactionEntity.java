@@ -83,9 +83,6 @@ public class TransactionEntity {
     @Column(name = "triggered_rules")
     private String triggeredRules;
 
-    @Column(name = "reason")
-    private List<String> reason;
-
     public static TransactionEntity toTransactionEntity(TransactionRequest transactionRequest) {
         TransactionEntity entity = new TransactionEntity();
         entity.setOriginalTransactionId(transactionRequest.transactionId());
@@ -125,7 +122,6 @@ public class TransactionEntity {
         entity.setTimeSinceLastTransaction(message.timeSinceLastTransaction());
         entity.setPaymentChannel(message.paymentChannel());
         entity.setMerchantCategory(message.merchantCategory());
-        entity.setReason(message.reason());
 
         return entity;
     }
