@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record TransactionMessage(UUID id, TransactionStatus status, String originalTransactionId, String correlationId,
