@@ -33,17 +33,22 @@ spring:
 security:
   jwt:
     secret: "${JWT_SECRET}"
-    expiration: 1800000
+    expiration: 3600000
     refresh-expiration: 2592000000
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,metrics,info
-  endpoint:
-    health:
-      show-details: always
+        include: health,prometheus
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 logging:
   pattern:

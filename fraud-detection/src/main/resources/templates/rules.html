@@ -81,7 +81,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="showComingSoon('Транзакции')">
+                        <a class="nav-link" th:href="@{/transactions}">
                             <i class="fas fa-exchange-alt me-2"></i>Транзакции
                         </a>
                     </li>
@@ -184,16 +184,68 @@
     let rules = [];
     let ruleModal = null;
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function () {
         ruleModal = new bootstrap.Modal(document.getElementById('ruleModal'));
-        checkAuth();
-        loadRules();
+        await checkAuth();
+        await loadRules();
     });
 
-    function checkAuth() {
+    async function checkAuth() {
         const token = localStorage.getItem('accessToken');
         if (!token) {
             window.location.href = '/signin';
+            return;
+        }
+
+        if (isTokenExpired(token)) {
+            await refreshToken();
+        }
+    }
+
+    function isTokenExpired(token) {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const exp = payload.exp * 1000;
+            return Date.now() >= exp;
+        } catch (error) {
+            console.error('Ошибка при проверке токена:', error);
+            return true;
+        }
+    }
+
+    async function refreshToken() {
+        try {
+            const refreshToken = localStorage.getItem('refreshToken');
+            if (!refreshToken) {
+                throw new Error('Refresh token не найден');
+            }
+
+            const response = await fetch('/auth/refresh', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'refreshToken': refreshToken
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Ошибка обновления токена: ' + response.status);
+            }
+
+            const data = await response.json();
+
+            localStorage.setItem('accessToken', data.accessToken);
+            localStorage.setItem('refreshToken', data.refreshToken);
+
+            console.log('Токен успешно обновлен');
+            return true;
+
+        } catch (error) {
+            console.error('Ошибка при обновлении токена:', error);
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            window.location.href = '/signin';
+            return false;
         }
     }
 

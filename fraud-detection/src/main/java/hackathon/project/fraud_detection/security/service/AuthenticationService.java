@@ -56,6 +56,7 @@ public class AuthenticationService {
 
     @Transactional
     public AuthenticationResponse refreshAccessToken(String refreshToken) {
+        log.info("Refreshing access token");
         if (jwtService.isTokenExpired(refreshToken)) {
             throw new ExpiredTokenException("Refresh token expired");
         }

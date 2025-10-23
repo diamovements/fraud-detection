@@ -33,7 +33,7 @@ public class RuleEngine {
         boolean isSuspicious = false;
 
         List<RuleEntity> rules = ruleRepository.findAll();
-        rules.forEach(rule -> log.info("Found rule id: {}", rule.getName()));
+        rules.forEach(rule -> log.info("Found rule name: {}", rule.getName()));
 
         for (RuleEntity ruleEntity : rules) {
             if (!ruleEntity.isEnabled()) continue;
@@ -44,24 +44,24 @@ public class RuleEngine {
                 ruleResults.add(thresholdEvaluationResult);
                 if (thresholdEvaluationResult.triggered()) {
                     log.info("Threshold rule was triggered: {}", ruleEntity.getName());
-                    triggeredRuleNames.add(thresholdRule.getName());
+                    triggeredRuleNames.add(ruleEntity.getName());
                     isSuspicious = true;
                     reasons.add(thresholdEvaluationResult.reason());
                 }
-            } else if (ruleEntity.getType().equals(RuleType.PATTERN)) {
+            } if (ruleEntity.getType().equals(RuleType.PATTERN)) {
                 //todo
-            } else if (ruleEntity.getType().equals(RuleType.COMPOSITE)) {
+            } if (ruleEntity.getType().equals(RuleType.COMPOSITE)) {
                 val compositeRule = compositeRuleFactory.createCompositeRule(ruleEntity);
                 log.info("Current composite rule: {}", ruleEntity.getName());
                 RuleResult compositeEvaluationResult = compositeRule.evaluate(transaction);
                 ruleResults.add(compositeEvaluationResult);
                 if (compositeEvaluationResult.triggered()) {
                     log.info("Composite rule was triggered: {}", ruleEntity.getName());
-                    triggeredRuleNames.add(compositeRule.getName());
+                    triggeredRuleNames.add(ruleEntity.getName());
                     isSuspicious = true;
                     reasons.add(compositeEvaluationResult.reason());
                 }
-            } else if (ruleEntity.getType().equals(RuleType.ML)) {
+            } if (ruleEntity.getType().equals(RuleType.ML)) {
                 //todo
             }
         }

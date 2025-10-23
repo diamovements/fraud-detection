@@ -32,4 +32,9 @@ public class AdminPanelController {
     public String rules() {
         return "rules";
     }
+
+    @GetMapping("/transactions")
+    public String transactions() {
+        return "transactions";
+    }
 }

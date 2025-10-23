@@ -3,10 +3,7 @@ package hackathon.project.fraud_detection.storage.entity;
 import hackathon.project.fraud_detection.api.dto.TransactionMessage;
 import hackathon.project.fraud_detection.api.dto.request.TransactionRequest;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.slf4j.MDC;
 
@@ -21,6 +18,7 @@ import java.util.UUID;
 @Table(name = "transaction")
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class TransactionEntity {
 
     @Id

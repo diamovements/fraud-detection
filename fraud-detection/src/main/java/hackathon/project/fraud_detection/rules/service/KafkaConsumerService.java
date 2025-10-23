@@ -39,12 +39,13 @@ public class KafkaConsumerService {
         try {
             transactionRepository.updateTransactionEntityById(
                     transaction.getOriginalTransactionId(),
-                    transaction.getStatus()
+                    transaction.getStatus(),
+                    transaction.getTriggeredRules(),
+                    transaction.getSuspicious()
             );
         } catch(Exception exception){
             log.info("ERROR: Ошибка обновления записи в БД: {}", exception.getMessage());
         }
     }
-
 }
 
