@@ -2,6 +2,7 @@ package hackathon.project.fraud_detection.rules.cache;
 
 import hackathon.project.fraud_detection.api.dto.request.CreateRuleRequest;
 import hackathon.project.fraud_detection.rules.model.RuleType;
+import hackathon.project.fraud_detection.rules.validator.PatternJsonParamsChecker;
 import hackathon.project.fraud_detection.rules.validator.CompositeJsonParamsChecker;
 import hackathon.project.fraud_detection.rules.validator.MLJsonParamsChecker;
 import hackathon.project.fraud_detection.rules.validator.ThresholdJsonParamsChecker;
@@ -27,6 +28,7 @@ public class RuleCacheService {
 
     private final RuleRepository ruleRepository;
     private final ThresholdJsonParamsChecker thresholdJsonParamsChecker;
+    private final PatternJsonParamsChecker patternJsonParamsChecker;
     private final CompositeJsonParamsChecker compositeJsonParamsChecker;
     private final MLJsonParamsChecker mlJsonParamsChecker;
 
@@ -133,8 +135,8 @@ public class RuleCacheService {
     private boolean checkJsonParams(String params, RuleType ruleType) {
         return switch (ruleType) {
             case RuleType.THRESHOLD -> thresholdJsonParamsChecker.checkJsonParams(params, ruleType);
+            case RuleType.PATTERN -> patternJsonParamsChecker.checkJsonParams(params, ruleType);
             case RuleType.COMPOSITE -> compositeJsonParamsChecker.checkJsonParams(params, ruleType);
-            case RuleType.PATTERN -> false;
             case RuleType.ML -> mlJsonParamsChecker.checkJsonParams(params, ruleType);
         };
     }
