@@ -37,4 +37,9 @@ public class AdminPanelController {
     public String transactions() {
         return "transactions";
     }
+
+    @GetMapping("/stats")
+    public String stats() {
+        return "stats";
+    }
 }

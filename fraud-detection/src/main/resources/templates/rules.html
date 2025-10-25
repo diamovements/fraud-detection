@@ -63,7 +63,6 @@
 <body>
 <div class="container-fluid">
     <div class="row">
-        <!-- Боковая панель -->
         <div class="col-md-2 sidebar">
             <div class="d-flex flex-column p-3">
                 <h4 class="text-center mb-4">
@@ -83,6 +82,11 @@
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/transactions}">
                             <i class="fas fa-exchange-alt me-2"></i>Транзакции
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/stats}">
+                            <i class="fas fa-exchange-alt me-2"></i>Статистика
                         </a>
                     </li>
                 </ul>
@@ -423,7 +427,6 @@
             loadRules();
 
         } catch (error) {
-            // Показываем ошибку в модальном окне, а не в основном контейнере
             showModalAlert('Ошибка при сохранении правила: ' + error.message, 'danger');
         }
     }
@@ -515,10 +518,6 @@
     function clearModalAlerts() {
         const container = document.getElementById('modalAlertContainer');
         container.innerHTML = '';
-    }
-
-    function showComingSoon(feature) {
-        alert(`Раздел "${feature}" находится в разработке`);
     }
 
     function logout() {
