@@ -47,8 +47,7 @@ public class CompositeRule extends Rule {
                 dslParser,
                 subRuleEvaluationService
         );
-        return new RuleResult(ast.evaluate(evaluationContext), "");//хз как сюда прокинуть
-        // дочерние причины, потом поправлю
+        return new RuleResult(ast.evaluate(evaluationContext), "composite rule triggered");
     }
 
     private Map<String, Object> parseJsonParams(String params) {

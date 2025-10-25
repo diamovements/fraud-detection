@@ -7,6 +7,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./config/db/create_database.sql:/docker-entrypoint-initdb.d/create_database.sql
     healthcheck:
       interval: 10s
       timeout: 5s
@@ -64,8 +65,11 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SECURITY_JWT_SECRET: ${JWT_SECRET}
+      ML_MODELS_DIRECTORY: /app/ml-data
     ports:
       - "8080:8080"
+    volumes:
+      - ./ml/app/data:/app/ml-data:rw
     depends_on:
       logstash:
           condition: service_healthy
@@ -166,9 +170,36 @@ services:
       - "5601:5601"
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${ENCRYPTION_KEY}
     volumes:
       - kibana_data:/usr/share/kibana/data
+    networks:
+      - fraud-network
+
+  ml-service:
+    build: ./ml
+    container_name: fraud-ml-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ml/app:/app/app
+      - ./ml/app/data:/app/app/data
+      - ./ml-data:/app/data
+    environment:
+      - PYTHONPATH=/app
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - DATABASE_URL=postgresql://${DB_USERNAME}:${DB_PASSWORD}@postgres:5432/fraud_detection
+      - MODELS_DIR=/app/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     networks:
       - fraud-network
 

@@ -10,7 +10,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Getter
 @Setter
-// класс, который содержит в себе итоговую метку для транзакции, список стриггернувших правил и результаты правил
 public class RuleEvaluationResult {
     private final boolean suspicious;
     private final List<String> triggeredRuleNames;
