@@ -12,6 +12,9 @@ import os
 sys.path.append(os.path.dirname(__file__))
 from email_sender import EmailSender
 
+
+
+
 class EmailRequest(BaseModel):
     to_emails: Union[str, List[EmailStr]]
     subject: str
