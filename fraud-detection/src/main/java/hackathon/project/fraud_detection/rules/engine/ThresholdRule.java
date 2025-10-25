@@ -24,19 +24,21 @@ public class ThresholdRule extends Rule {
     private final Operator operator;
     private final Object value;
     private final RuleType ruleType;
+    private final String name;
 
-    public ThresholdRule(UUID id, int priority, boolean enabled, String params) {
+    public ThresholdRule(UUID id, int priority, boolean enabled, String params, String name) {
         this.id = id;
         this.priority = priority;
         this.enabled = enabled;
         this.field = (String) parseJsonParams(params).get("field");
         this.operator = Operator.valueOf((String) parseJsonParams(params).get("operator"));
         this.value = parseJsonParams(params).get("value");
+        this.name = name;
         this.ruleType = RuleType.THRESHOLD;
     }
 
     @Override
-    public RuleResult evaluate(TransactionRequest transactionRequest, RuleContext ruleContext) {
+    public RuleResult evaluate(TransactionRequest transactionRequest) {
         try {
             Object fieldValue = getFieldValue(transactionRequest, field);
             log.info("fieldValue, operator, value: {}, {}, {}", fieldValue, operator, value);

@@ -47,4 +47,7 @@ public class RuleEntity {
 
     @Column(name = "updatedby", nullable = false)
     private String updatedBy;
+
+    @Column(name = "name", nullable = false, unique = true)
+    private String name;
 }

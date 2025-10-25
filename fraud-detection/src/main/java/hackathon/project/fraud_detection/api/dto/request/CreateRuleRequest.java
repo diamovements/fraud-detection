@@ -7,6 +7,7 @@ public record CreateRuleRequest(
         boolean enabled,
         int priority,
         String params,
-        int version
+        int version,
+        String name
 ) {
 }

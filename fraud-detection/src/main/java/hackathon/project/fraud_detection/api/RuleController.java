@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,10 +18,15 @@ import java.util.UUID;
 @RestController
 @Slf4j
 @RequestMapping("/api/rules")
-@RequiredArgsConstructor
 public class RuleController {
 
     private final RuleCacheService ruleService;
+    private final Counter updatesCounter;
+
+    public RuleController(RuleCacheService ruleService, MeterRegistry meterRegistry) {
+        this.ruleService = ruleService;
+        this.updatesCounter = meterRegistry.counter("rule_updates_total", "type", "rule_updates");
+    }
 
     @GetMapping("/get-all")
     public ResponseEntity<List<RuleEntity>> getAllRules() {
@@ -41,6 +48,7 @@ public class RuleController {
             @PathVariable UUID id,
             @AuthenticationPrincipal UserDetails userDetails) {
         RuleEntity updatedRule = ruleService.updateRule(request, id, userDetails);
+        updatesCounter.increment();
         return ResponseEntity.ok(updatedRule);
     }
 

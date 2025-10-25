@@ -15,8 +15,10 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
 
     @Modifying
     @Query("UPDATE TransactionEntity t SET " +
-            "t.status = :status " +
+            "t.status = :status, t.triggeredRules = :triggeredRules, t.suspicious = :suspicious " +
             "WHERE t.originalTransactionId = :original_transaction_id")
     void updateTransactionEntityById(@Param("original_transaction_id") String original_transaction_id,
-                                     @Param("status") TransactionStatus status);
+                                     @Param("status") TransactionStatus status,
+                                     @Param("triggeredRules") String triggeredRules,
+                                     @Param("suspicious") boolean suspicious);
 }

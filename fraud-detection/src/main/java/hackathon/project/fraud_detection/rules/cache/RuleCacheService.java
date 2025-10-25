@@ -2,6 +2,7 @@ package hackathon.project.fraud_detection.rules.cache;
 
 import hackathon.project.fraud_detection.api.dto.request.CreateRuleRequest;
 import hackathon.project.fraud_detection.rules.model.RuleType;
+import hackathon.project.fraud_detection.rules.validator.CompositeJsonParamsChecker;
 import hackathon.project.fraud_detection.rules.validator.ThresholdJsonParamsChecker;
 import hackathon.project.fraud_detection.storage.entity.RuleEntity;
 import hackathon.project.fraud_detection.storage.repository.RuleRepository;
@@ -25,6 +26,8 @@ public class RuleCacheService {
 
     private final RuleRepository ruleRepository;
     private final ThresholdJsonParamsChecker thresholdJsonParamsChecker;
+    private final CompositeJsonParamsChecker compositeJsonParamsChecker;
+
 
     @Cacheable(key = "'all'", value = "allRules")
     public List<RuleEntity> getAllRules() {
@@ -45,8 +48,9 @@ public class RuleCacheService {
             UserDetails userDetails
     ) {
         RuleEntity newRule = new RuleEntity();
+        newRule.setName(request.name());
         setRuleFields(newRule, request, userDetails);
-        log.info("Creating new rule: {}", newRule.getId());
+        log.info("Creating new rule: {}", newRule.getName());
         ruleRepository.save(newRule);
         return newRule;
     }
@@ -65,9 +69,17 @@ public class RuleCacheService {
             UserDetails userDetails
     ) {
         RuleEntity updatedRule = ruleRepository.findRuleEntityById(id);
-        setRuleFields(updatedRule, request, userDetails);
-        log.info("Updating rule: {}", updatedRule.getId());
-        ruleRepository.save(updatedRule);
+        RuleEntity newRule = new RuleEntity();
+        setRuleFields(newRule, request, userDetails);
+        if (updatedRule != null) {
+            newRule.setVersion(updatedRule.getVersion() + 1);
+            newRule.setName(updatedRule.getName()
+                    .replaceAll("_v\\d+(?:_v\\d+)*$", "")
+                    + "_v" + newRule.getVersion()
+            );
+        }
+        log.info("Updating rule: {}", newRule.getName());
+        ruleRepository.save(newRule);
         return updatedRule;
     }
 
@@ -110,9 +122,7 @@ public class RuleCacheService {
         ruleEntity.setParams(request.params());
         ruleEntity.setType(request.type());
         ruleEntity.setPriority(request.priority());
-        ruleEntity.setVersion(request.version());
         ruleEntity.setEnabled(request.enabled());
-
         ruleEntity.setUpdatedAt(LocalDateTime.now());
         ruleEntity.setUpdatedBy(userDetails.getUsername());
     }
@@ -120,7 +130,7 @@ public class RuleCacheService {
     private boolean checkJsonParams(String params, RuleType ruleType) {
         return switch (ruleType) {
             case RuleType.THRESHOLD -> thresholdJsonParamsChecker.checkJsonParams(params, ruleType);
-            case RuleType.COMPOSITE -> false; //заглушки
+            case RuleType.COMPOSITE -> compositeJsonParamsChecker.checkJsonParams(params, ruleType);
             case RuleType.PATTERN -> false;
             case RuleType.ML -> false;
         };

@@ -65,6 +65,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
                 body: JSON.stringify(formData)
             });
@@ -74,17 +75,7 @@
                 localStorage.setItem('accessToken', data.accessToken);
                 localStorage.setItem('refreshToken', data.refreshToken);
 
-                const mainResponse = await fetch('/index', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': 'Bearer ' + data.accessToken
-                    }
-                });
-
-                if (mainResponse.ok) {
-                    const html = await mainResponse.text();
-                    document.documentElement.innerHTML = html;
-                }
+                window.location.href = '/index';
             } else {
                 const error = await response.text();
                 alert('Ошибка входа: ' + error);
@@ -94,34 +85,6 @@
             alert('Произошла ошибка при входе');
         }
     });
-
-    async function refreshToken() {
-        const refreshToken = localStorage.getItem('refreshToken');
-        if (!refreshToken) {
-            window.location.href = '/signin';
-            return;
-        }
-
-        try {
-            const response = await fetch('/auth/refresh', {
-                method: 'POST',
-                headers: {
-                    'refreshToken': refreshToken
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                localStorage.setItem('accessToken', data.accessToken);
-                localStorage.setItem('refreshToken', data.refreshToken);
-            } else {
-                window.location.href = '/signin';
-            }
-        } catch (error) {
-            console.error('Token refresh error:', error);
-            window.location.href = '/signin';
-        }
-    }
 </script>
 </body>
 </html>

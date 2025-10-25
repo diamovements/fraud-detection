@@ -30,7 +30,7 @@ public class KafkaConsumerService {
         RuleEvaluationResult result = ruleEngine.evaluate(transactionRequest);
         transaction.setSuspicious(result.isSuspicious());
         transaction.setStatus(result.isSuspicious() ? TransactionStatus.SUSPICIOUS : TransactionStatus.APPROVED);
-        transaction.setTriggeredRules(String.join(",", result.getTriggeredRuleIds().toString()));
+        transaction.setTriggeredRules(String.join(",", result.getTriggeredRuleNames().toString()));
 
         log.info("Transaction was processed and marked as {}. Reasons: {}",
                 transaction.getStatus(),
@@ -39,12 +39,13 @@ public class KafkaConsumerService {
         try {
             transactionRepository.updateTransactionEntityById(
                     transaction.getOriginalTransactionId(),
-                    transaction.getStatus()
+                    transaction.getStatus(),
+                    transaction.getTriggeredRules(),
+                    transaction.getSuspicious()
             );
         } catch(Exception exception){
             log.info("ERROR: Ошибка обновления записи в БД: {}", exception.getMessage());
         }
     }
-
 }
 

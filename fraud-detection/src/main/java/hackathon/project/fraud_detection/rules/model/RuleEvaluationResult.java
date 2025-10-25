@@ -13,7 +13,7 @@ import java.util.UUID;
 // класс, который содержит в себе итоговую метку для транзакции, список стриггернувших правил и результаты правил
 public class RuleEvaluationResult {
     private final boolean suspicious;
-    private final List<UUID> triggeredRuleIds;
+    private final List<String> triggeredRuleNames;
     private final List<RuleResult> ruleResults;
     private final List<String> reason;
 }
