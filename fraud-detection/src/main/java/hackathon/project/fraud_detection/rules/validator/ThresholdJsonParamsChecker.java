@@ -51,7 +51,9 @@ public class ThresholdJsonParamsChecker extends JsonParamsChecker {
 
     @Override
     boolean hasRequiredFields(String params) {
-        return params.contains("field") && params.contains("operator") && params.contains("value");
+        return params.contains("field")
+                && params.contains("operator")
+                && params.contains("value");
     }
 
     private boolean isValidFieldValue(String field) {

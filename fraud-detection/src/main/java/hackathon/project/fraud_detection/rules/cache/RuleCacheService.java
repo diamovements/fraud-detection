@@ -3,6 +3,7 @@ package hackathon.project.fraud_detection.rules.cache;
 import hackathon.project.fraud_detection.api.dto.request.CreateRuleRequest;
 import hackathon.project.fraud_detection.rules.model.RuleType;
 import hackathon.project.fraud_detection.rules.validator.CompositeJsonParamsChecker;
+import hackathon.project.fraud_detection.rules.validator.MLJsonParamsChecker;
 import hackathon.project.fraud_detection.rules.validator.ThresholdJsonParamsChecker;
 import hackathon.project.fraud_detection.storage.entity.RuleEntity;
 import hackathon.project.fraud_detection.storage.repository.RuleRepository;
@@ -27,6 +28,7 @@ public class RuleCacheService {
     private final RuleRepository ruleRepository;
     private final ThresholdJsonParamsChecker thresholdJsonParamsChecker;
     private final CompositeJsonParamsChecker compositeJsonParamsChecker;
+    private final MLJsonParamsChecker mlJsonParamsChecker;
 
 
     @Cacheable(key = "'all'", value = "allRules")
@@ -117,6 +119,7 @@ public class RuleCacheService {
             CreateRuleRequest request,
             UserDetails userDetails) {
         if (!checkJsonParams(request.params(), request.type())) {
+            log.info("Request: {}, {}", request.params(), request.type());
             throw new IllegalArgumentException("Validation failed");
         }
         ruleEntity.setParams(request.params());
@@ -132,7 +135,7 @@ public class RuleCacheService {
             case RuleType.THRESHOLD -> thresholdJsonParamsChecker.checkJsonParams(params, ruleType);
             case RuleType.COMPOSITE -> compositeJsonParamsChecker.checkJsonParams(params, ruleType);
             case RuleType.PATTERN -> false;
-            case RuleType.ML -> false;
+            case RuleType.ML -> mlJsonParamsChecker.checkJsonParams(params, ruleType);
         };
     }
 }

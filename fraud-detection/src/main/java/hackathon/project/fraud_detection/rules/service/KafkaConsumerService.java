@@ -24,7 +24,7 @@ public class KafkaConsumerService {
     @KafkaListener(topics = "transaction_topic", groupId = "my-group")
     @Transactional
     public void listenNotifications(TransactionMessage message) {
-        log.info("Transaction was taken from queue"); //не создастся ли тут новый corellationId?
+        log.info("Transaction was taken from queue");
         TransactionEntity transaction = TransactionEntity.toTransactionEntity(message);
         TransactionRequest transactionRequest = new TransactionRequest(transaction);
         RuleEvaluationResult result = ruleEngine.evaluate(transactionRequest);
@@ -44,7 +44,7 @@ public class KafkaConsumerService {
                     transaction.getSuspicious()
             );
         } catch(Exception exception){
-            log.info("ERROR: Ошибка обновления записи в БД: {}", exception.getMessage());
+            log.info("Error while updating rule in database: {}", exception.getMessage());
         }
     }
 }

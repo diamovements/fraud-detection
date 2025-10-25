@@ -57,9 +57,6 @@ public class ThresholdRule extends Rule {
         }
     }
 
-    //подумать как выпилить отсюда проверки тк все теперь валидируется на входе
-    // и некорректные params в базу не попадают
-
     private Object getFieldValue(TransactionRequest transaction, String field) {
         return switch (field) {
             case "amount" -> transaction.amount();

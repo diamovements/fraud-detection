@@ -2,6 +2,7 @@ package hackathon.project.fraud_detection.rules.service;
 
 import hackathon.project.fraud_detection.api.dto.request.TransactionRequest;
 import hackathon.project.fraud_detection.rules.engine.CompositeRuleFactory;
+import hackathon.project.fraud_detection.rules.engine.Rule;
 import hackathon.project.fraud_detection.rules.engine.RuleFactory;
 import hackathon.project.fraud_detection.rules.model.RuleEvaluationResult;
 import hackathon.project.fraud_detection.rules.model.RuleResult;
@@ -37,6 +38,7 @@ public class RuleEngine {
 
         for (RuleEntity ruleEntity : rules) {
             if (!ruleEntity.isEnabled()) continue;
+
             if (ruleEntity.getType().equals(RuleType.THRESHOLD)) {
                 var thresholdRule = ruleFactory.createRule(ruleEntity);
                 log.info("Current threshold rule: {}", ruleEntity.getName());
@@ -62,7 +64,16 @@ public class RuleEngine {
                     reasons.add(compositeEvaluationResult.reason());
                 }
             } if (ruleEntity.getType().equals(RuleType.ML)) {
-                //todo
+                val mlRule = ruleFactory.createRule(ruleEntity);
+                log.info("Current ml rule: {}", ruleEntity.getName());
+                RuleResult mlEvaluationResult = mlRule.evaluate(transaction);
+                ruleResults.add(mlEvaluationResult);
+                if (mlEvaluationResult.triggered()) {
+                    log.info("Ml rule was triggered: {}", ruleEntity.getName());
+                    triggeredRuleNames.add(ruleEntity.getName());
+                    isSuspicious = true;
+                    reasons.add(mlEvaluationResult.reason());
+                }
             }
         }
 

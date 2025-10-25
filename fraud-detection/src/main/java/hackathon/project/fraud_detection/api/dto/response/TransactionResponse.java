@@ -1,6 +1,5 @@
 package hackathon.project.fraud_detection.api.dto.response;
 
-// ответ пользователю
 public record TransactionResponse(
     String status,
     String correlationId,
