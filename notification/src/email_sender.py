@@ -124,7 +124,10 @@ class EmailSender:
                             Сумма: {amount} руб.
                             Вероятность мошенничества: {ml_probability}%
 
-                            Сработавшие правила:
+                            Сработавшее правило
+                            
+                            
+                            :
                             {chr(10).join(f'• {rule}' for rule in triggered_rules)}
 
                             Рекомендуется проверить операцию.
