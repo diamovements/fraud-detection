@@ -91,7 +91,6 @@
         </div>
 
         <div class="menu-grid">
-            <!-- Используем обычные ссылки -->
             <a href="/rules" class="menu-item">
                 <div class="menu-icon">
                     <i class="fas fa-cogs"></i>
@@ -106,7 +105,7 @@
                 <h5>Транзакции</h5>
             </a>
 
-            <a href="#" class="menu-item" onclick="showComingSoon('Статистика')">
+            <a href="/stats" class="menu-item">
                 <div class="menu-icon">
                     <i class="fas fa-chart-bar"></i>
                 </div>
@@ -124,9 +123,6 @@
         <div class="user-info">
             <p><i class="fas fa-user me-2"></i>Вы вошли как: <strong>Администратор</strong></p>
             <div class="mt-2">
-                <a href="#" class="btn btn-sm btn-outline-secondary me-2" onclick="showComingSoon('Настройки профиля')">
-                    <i class="fas fa-cog me-1"></i>Настройки
-                </a>
                 <a href="#" class="btn btn-sm btn-outline-danger" onclick="logout()">
                     <i class="fas fa-sign-out-alt me-1"></i>Выйти
                 </a>
@@ -177,7 +173,6 @@
 
         } catch (error) {
             console.error('Ошибка при обновлении токена:', error);
-            // Если не удалось обновить токен, перенаправляем на страницу входа
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
             window.location.href = '/signin';
