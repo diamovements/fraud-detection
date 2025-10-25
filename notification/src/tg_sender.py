@@ -130,7 +130,7 @@ class TelegramBot:
     
     def test_connection(self) -> bool:
         """
-        Проверяет соединение с Telegram API
+        Проверяет соединение с Telegram API и всё
         """
         try:
             response = requests.get(f"{self.base_url}getMe", timeout=5)
