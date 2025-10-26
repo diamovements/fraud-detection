@@ -843,6 +843,59 @@
         }
     }
 
+    async function exportTransactions() {
+        try {
+            const exportBtn = event.target;
+            const originalText = exportBtn.innerHTML;
+            exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Экспорт...';
+            exportBtn.disabled = true;
+
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch('/api/transactions/export', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Ошибка экспорта: ' + response.status);
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'transactions_export.csv';
+            if (contentDisposition) {
+                const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+                if (filenameMatch) {
+                    filename = filenameMatch[1];
+                }
+            }
+
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            const totalRecords = response.headers.get('X-Total-Records') || 'all';
+            showAlert(`Экспорт завершен! Скачано ${totalRecords} транзакций`, 'success');
+
+        } catch (error) {
+            console.error('Ошибка экспорта:', error);
+            showAlert('Ошибка при экспорте транзакций: ' + error.message, 'danger');
+        } finally {
+            const exportBtn = event.target;
+            exportBtn.innerHTML = '<i class="fas fa-download me-2"></i>Экспорт';
+            exportBtn.disabled = false;
+        }
+    }
+
     function getStatusText(status) {
         switch (status) {
             case 'APPROVED': return 'Одобрена';
@@ -869,10 +922,6 @@
 
     function refreshTransactions() {
         loadTransactions();
-    }
-
-    function exportTransactions() {
-        showAlert('Функция экспорта находится в разработке', 'info');
     }
 
     function showAlert(message, type) {
