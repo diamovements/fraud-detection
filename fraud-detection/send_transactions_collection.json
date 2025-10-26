@@ -1,0 +1,266 @@
+{
+	"info": {
+		"_postman_id": "26e0926e-9b57-471c-a086-440355b9ca7c",
+		"name": "Send Transactions",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "34623497"
+	},
+	"item": [
+		{
+			"name": "New Request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transaction_id\":\"T000001\",\n    \"timestamp\": \"2025-08-29T05:16:43.516168\",\n    \"sender_account\":\"ACC871542\",\n    \"receiver_account\":\"ACC328189\",\n    \"amount\":\"900.00\",\n    \"transaction_type\":\"withdrawal\",\n    \"merchant_category\":\"other\",\n    \"location\":\"Tokyo\",\n    \"device_used\":\"atm\",\n    \"payment_channel\":\"UPI\",\n    \"ip_address\":\"16.111.244.212\",\n    \"device_hash\":\"D8537457\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/transactions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transaction_id\":\"T000002\",\n    \"timestamp\": \"2025-09-30T01:17:43.516168\",\n    \"sender_account\":\"ACC871552\",\n    \"receiver_account\":\"ACC322189\",\n    \"amount\":\"345.50\",\n    \"transaction_type\":\"deposit\",\n    \"merchant_category\":\"other\",\n    \"location\":\"London\",\n    \"device_used\":\"pos\",\n    \"payment_channel\":\"card\",\n    \"ip_address\":\"50.25.7.47\",\n    \"device_hash\":\"D1326765\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/transactions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transaction_id\":\"T000003\",\n    \"timestamp\": \"2023-08-04T01:58:02.606711\",\n    \"sender_account\":\"ACC584714\",\n    \"receiver_account\":\"ACC497887\",\n    \"amount\":\"24.43\",\n    \"transaction_type\":\"transfer\",\n    \"merchant_category\":\"utilities\",\n    \"location\":\"Sydney\",\n    \"device_used\":\"mobile\",\n    \"payment_channel\":\"ACH\",\n    \"ip_address\":\"108.161.108.255\",\n    \"device_hash\":\"D1790481\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/transactions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transaction_id\":\"T000004\",\n    \"timestamp\": \"2023-08-04T01:59:02.606711\",\n    \"sender_account\":\"ACC584714\",\n    \"receiver_account\":\"ACC497887\",\n    \"amount\":\"100.03\",\n    \"transaction_type\":\"transfer\",\n    \"merchant_category\":\"utilities\",\n    \"location\":\"Sydney\",\n    \"device_used\":\"mobile\",\n    \"payment_channel\":\"ACH\",\n    \"ip_address\":\"108.161.108.255\",\n    \"device_hash\":\"D1790481\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/transactions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transaction_id\":\"T000005\",\n    \"timestamp\": \"2023-03-11T13:30:19.142152\",\n    \"sender_account\":\"ACC946721\",\n    \"receiver_account\":\"ACC526833\",\n    \"amount\":\"650.09\",\n    \"transaction_type\":\"withdrawal\",\n    \"merchant_category\":\"other\",\n    \"location\":\"Moscow\",\n    \"device_used\":\"web\",\n    \"payment_channel\":\"wire_transfer\",\n    \"ip_address\":\"27.50.31.206\",\n    \"device_hash\":\"D6692553\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/transactions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transaction_id\":\"T000006\",\n    \"timestamp\": \"2023-03-11T13:32:19.142152\",\n    \"sender_account\":\"ACC946721\",\n    \"receiver_account\":\"ACC526833\",\n    \"amount\":\"650.80\",\n    \"transaction_type\":\"withdrawal\",\n    \"merchant_category\":\"other\",\n    \"location\":\"Moscow\",\n    \"device_used\":\"web\",\n    \"payment_channel\":\"wire_transfer\",\n    \"ip_address\":\"27.50.31.206\",\n    \"device_hash\":\"D6692553\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/transactions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transaction_id\":\"T000007\",\n    \"timestamp\": \"2023-05-20T16:03:55.763817\",\n    \"sender_account\":\"ACC367095\",\n    \"receiver_account\":\"ACC299312\",\n    \"amount\":\"1444.64\",\n    \"transaction_type\":\"deposit\",\n    \"merchant_category\":\"retail\",\n    \"location\":\"Dubai\",\n    \"device_used\":\"mobile\",\n    \"payment_channel\":\"card\",\n    \"ip_address\":\"35.125.189.145\",\n    \"device_hash\":\"D3646552\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/transactions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transaction_id\":\"T000008\",\n    \"timestamp\": \"2023-07-20T16:53:55.763817\",\n    \"sender_account\":\"ACC367195\",\n    \"receiver_account\":\"ACC259312\",\n    \"amount\":\"144.54\",\n    \"transaction_type\":\"withdrawal\",\n    \"merchant_category\":\"grocery\",\n    \"location\":\"Toronto\",\n    \"device_used\":\"web\",\n    \"payment_channel\":\"UPI\",\n    \"ip_address\":\"222.176.160.223\",\n    \"device_hash\":\"D3641552\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/transactions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
