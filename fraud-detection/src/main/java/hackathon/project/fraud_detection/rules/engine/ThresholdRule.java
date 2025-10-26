@@ -37,7 +37,6 @@ public class ThresholdRule extends Rule {
         this.ruleType = RuleType.THRESHOLD;
     }
 
-    // для паттерном, поэтому имя необязательно
     public ThresholdRule(UUID id, int priority, boolean enabled, String field, Operator operator, Object value) {
         this.id = id;
         this.priority = priority;
@@ -69,25 +68,32 @@ public class ThresholdRule extends Rule {
         }
     }
 
-    //подумать как выпилить отсюда проверки тк все теперь валидируется на входе
-    // и некорректные params в базу не попадают
-
     public boolean evaluateCondition(Object actual, Operator operator, Object expected) {
-        if (actual instanceof LocalDateTime) {
-            expected = LocalTime.parse((String) expected);
-            LocalTime localTime = LocalTime.parse((String) actual);
-            return evaluateTimeCondition(localTime,
-                    operator, expected);
-        } else if (actual instanceof BigDecimal || actual instanceof Integer) {
-            expected = new BigDecimal((String) expected);
-            BigDecimal bigDecimal = BigDecimal.valueOf(Double.parseDouble((String) actual));
-            return evaluateNumericCondition(bigDecimal,
-                    operator, (BigDecimal) expected);
+        try {
+            if (actual instanceof LocalDateTime) {
+                LocalTime actualTime = ((LocalDateTime) actual).toLocalTime();
+                LocalTime expectedTime = LocalTime.parse(expected.toString());
+                return evaluateTimeCondition(actualTime, operator, expectedTime);
+
+            } else if (actual instanceof BigDecimal) {
+                BigDecimal expectedDecimal = new BigDecimal(expected.toString());
+                return evaluateNumericCondition((BigDecimal) actual, operator, expectedDecimal);
+
+            } else if (actual instanceof Integer) {
+                BigDecimal actualDecimal = BigDecimal.valueOf((Integer) actual);
+                BigDecimal expectedDecimal = new BigDecimal(expected.toString());
+                return evaluateNumericCondition(actualDecimal, operator, expectedDecimal);
+
+            } else if (actual instanceof String) {
+                return evaluateStringCondition((String) actual, operator, expected.toString());
+
+            }
+
+            throw new IllegalArgumentException("Unsupported type of value: " + actual.getClass());
+
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error evaluating condition: " + e.getMessage(), e);
         }
-        else{
-            evaluateStringCondition((String) actual, operator, (String) expected);
-        }
-        throw new IllegalArgumentException("Unsupported type of value: " + actual.getClass());
     }
 
 

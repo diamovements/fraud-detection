@@ -45,10 +45,6 @@ public class PatternJsonParamsChecker extends JsonParamsChecker {
             throw new IllegalArgumentException("Field and operator are incompatible");
         }
 
-        if (!isValidValueForOperator(value, operator)) {
-            throw new IllegalArgumentException("Operator and value are incompatible");
-        }
-
         if (!isValidFieldValue(by)) {
             throw new IllegalArgumentException("By value is invalid");
         }

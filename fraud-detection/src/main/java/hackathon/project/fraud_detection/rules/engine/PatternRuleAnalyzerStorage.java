@@ -24,17 +24,15 @@ public class PatternRuleAnalyzerStorage {
         analyzers.add(patternRuleAnalyzer);
     }
 
-    public PatternRuleAnalyzer getPatternRuleById(UUID id) {
-        for (PatternRuleAnalyzer analyzer : analyzers) {
-            PatternRule patternRule = analyzer.getPatternRule();
-            if (patternRule != null && patternRule.getId().equals(id)) {
-                return analyzer;
-            }
-        }
-        return null;
+    public PatternRuleAnalyzer getAnalyzerByRuleId(UUID ruleId) {
+        return analyzers.stream()
+                .filter(analyzer -> analyzer.getPatternRule() != null &&
+                        analyzer.getPatternRule().getId().equals(ruleId))
+                .findFirst()
+                .orElse(null);
     }
 
-    @Scheduled(fixedRate = 1 * 60 * 1000) // 1 минута в миллисекундах
+    @Scheduled(fixedRate = 60 * 1000)
     public void scheduledCleanup() {
         for (PatternRuleAnalyzer analyzer : analyzers) {
             analyzer.cleanUp();

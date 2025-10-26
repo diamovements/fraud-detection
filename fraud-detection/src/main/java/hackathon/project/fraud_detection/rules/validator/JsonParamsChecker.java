@@ -1,6 +1,5 @@
 package hackathon.project.fraud_detection.rules.validator;
 
-import hackathon.project.fraud_detection.api.dto.request.TransactionRequest;
 import hackathon.project.fraud_detection.rules.model.RuleType;
 import tools.jackson.databind.ObjectMapper;
 
@@ -25,7 +24,6 @@ public abstract class JsonParamsChecker {
             "LESS_THAN_OR_EQUAL", "GREATER_THAN_OR_EQUAL"
     );
 
-    //лишний второй аргумент, класс абстрактный, у нас по классу наследнику понятно какой type
     public abstract boolean checkJsonParams(String params, RuleType ruleType);
 
      Map<String, Object> parseJsonParams(String params) {
@@ -61,29 +59,6 @@ public abstract class JsonParamsChecker {
         } else if (fieldType == LocalDateTime.class) {
             return TIME_OPERATORS.contains(operator);
         }
-        return false;
-    }
-
-    protected boolean isValidValueForOperator(String value, String operator) {
-        if (NUMERIC_OPERATORS.contains(operator)) {
-           try{
-               new BigDecimal(value);
-               return true;
-           } catch (Exception exp){
-               return false;
-           }
-        };
-        if (TIME_OPERATORS.contains(operator)) {
-            try{
-                LocalDateTime.parse(value);
-                return true;
-            } catch (Exception exp){
-                return false;
-            }
-        };
-        if (STRING_OPERATORS.contains(operator)) {
-            return true;
-        };
         return false;
     }
 

@@ -34,13 +34,16 @@ public class RuleFactory {
                         mlClient
                 );
             case PATTERN:
-                return new PatternRule(
+                PatternRuleAnalyzer analyzer = new PatternRuleAnalyzer();
+                PatternRule patternRule = new PatternRule(
                         ruleEntity.getId(),
                         ruleEntity.getPriority(),
                         ruleEntity.isEnabled(),
                         ruleEntity.getParams(),
-                        patternRuleAnalyzerStorage.getPatternRuleById(ruleEntity.getId())
+                        analyzer
                 );
+                patternRuleAnalyzerStorage.addNewPatternRule(analyzer);
+                return patternRule;
             default:
                 throw new IllegalArgumentException("Unsupported rule type: " + ruleEntity.getType());
         }

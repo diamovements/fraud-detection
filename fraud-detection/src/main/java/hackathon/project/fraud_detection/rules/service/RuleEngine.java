@@ -26,7 +26,6 @@ import java.util.UUID;
 @Slf4j
 public class RuleEngine {
 
-    private final RuleRepository ruleRepository;
     private final RuleFactory ruleFactory;
     private final RuleCacheService ruleCacheService;
     private final PatternRuleAnalyzerStorage patternRuleAnalyzerStorage;
@@ -44,15 +43,6 @@ public class RuleEngine {
                 .toList();
         rules.forEach(rule -> log.info("Found rule name: {}", rule.getName()));
 
-        for (PatternRuleAnalyzer analyzer : patternRuleAnalyzerStorage.getAnalyzers()) {
-            PatternRule patternRule = analyzer.getPatternRule();
-            ThresholdRule thresholdRule = new ThresholdRule(null, patternRule.getPriority(), patternRule.getEnabled(), patternRule.getField(), patternRule.getOperator(), patternRule.getValue());
-            RuleResult thresholdEvaluationResult = thresholdRule.evaluate(transaction);
-            if(thresholdEvaluationResult.triggered()){
-                analyzer.updateMap(patternRule.getBy(), transaction.timestamp());
-            }
-        }
-
         for (RuleEntity ruleEntity : rules) {
             if (!ruleEntity.isEnabled()) continue;
 
@@ -69,8 +59,12 @@ public class RuleEngine {
                 }
             } else if (ruleEntity.getType().equals(RuleType.PATTERN)) {
                 var patternRule = ruleFactory.createRule(ruleEntity);
-                //PatternRuleAnalyzer patternRuleAnalyzer = patternRuleAnalyzerStorage.getPatternRuleById(ruleEntity.getId());
-                log.info("Current pattern rule: {}", ruleEntity.getId());
+                log.info("Current pattern rule: {}", ruleEntity.getName());
+                PatternRuleAnalyzer analyzer = patternRuleAnalyzerStorage.getAnalyzerByRuleId(ruleEntity.getId());
+                if (analyzer == null) {
+                    log.warn("PatternRuleAnalyzer not found for rule: {}", ruleEntity.getId());
+                    continue;
+                }
                 RuleResult patternEvaluationResult = patternRule.evaluate(transaction);
                 ruleResults.add(patternEvaluationResult);
                 if (patternEvaluationResult.triggered()) {

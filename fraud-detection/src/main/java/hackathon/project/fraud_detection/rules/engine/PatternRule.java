@@ -46,8 +46,9 @@ public class PatternRule extends Rule {
         this.operator = Operator.valueOf((String) parseJsonParams(params).get("operator"));
         this.value = parseJsonParams(params).get("value");
         this.minCount = parseJsonParams(params).get("minCount");
-        this.ruleType = RuleType.THRESHOLD;
+        this.ruleType = RuleType.PATTERN;
         this.patternRuleAnalyzer = patternRuleAnalyzer;
+        this.patternRuleAnalyzer.setPatternRule(this);
         this.thresholdRule = new ThresholdRule(null, priority, enabled, this.field, this.operator, this.value);
     }
 
