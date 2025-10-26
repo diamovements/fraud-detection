@@ -1,6 +1,8 @@
 package hackathon.project.fraud_detection.rules.service;
 
 import hackathon.project.fraud_detection.api.dto.request.TransactionRequest;
+import hackathon.project.fraud_detection.rules.cache.RuleCacheService;
+import hackathon.project.fraud_detection.rules.engine.*;
 import hackathon.project.fraud_detection.rules.engine.CompositeRuleFactory;
 import hackathon.project.fraud_detection.rules.engine.Rule;
 import hackathon.project.fraud_detection.rules.engine.RuleFactory;
@@ -15,6 +17,7 @@ import lombok.val;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,7 +27,10 @@ import java.util.UUID;
 public class RuleEngine {
 
     private final RuleRepository ruleRepository;
+    private final RuleContext ruleContext;
     private final RuleFactory ruleFactory;
+    private final RuleCacheService ruleCacheService;
+    private final PatternRuleAnalyzerStorage patternRuleAnalyzerStorage;
     private final CompositeRuleFactory compositeRuleFactory;
 
     public RuleEvaluationResult evaluate(TransactionRequest transaction) {
@@ -33,8 +39,20 @@ public class RuleEngine {
         List<String> reasons = new ArrayList<>();
         boolean isSuspicious = false;
 
-        List<RuleEntity> rules = ruleRepository.findAll();
+        List<RuleEntity> rules = ruleCacheService.getAllRules()
+                .stream()
+                .sorted(Comparator.comparing(RuleEntity::getPriority).reversed())
+                .toList();
         rules.forEach(rule -> log.info("Found rule name: {}", rule.getName()));
+
+        for (PatternRuleAnalyzer analyzer : patternRuleAnalyzerStorage.getAnalyzers()) {
+            PatternRule patternRule = analyzer.getPatternRule();
+            ThresholdRule thresholdRule = new ThresholdRule(null, patternRule.getPriority(), patternRule.getEnabled(), patternRule.getField(), patternRule.getOperator(), patternRule.getValue());
+            RuleResult thresholdEvaluationResult = thresholdRule.evaluate(transaction, ruleContext);
+            if(thresholdEvaluationResult.triggered()){
+                analyzer.updateMap(patternRule.getBy(), transaction.timestamp());
+            }
+        }
 
         for (RuleEntity ruleEntity : rules) {
             if (!ruleEntity.isEnabled()) continue;
@@ -50,9 +68,19 @@ public class RuleEngine {
                     isSuspicious = true;
                     reasons.add(thresholdEvaluationResult.reason());
                 }
-            } if (ruleEntity.getType().equals(RuleType.PATTERN)) {
-                //todo
-            } if (ruleEntity.getType().equals(RuleType.COMPOSITE)) {
+            } else if (ruleEntity.getType().equals(RuleType.PATTERN)) {
+                var patternRule = ruleFactory.createRule(ruleEntity);
+                //PatternRuleAnalyzer patternRuleAnalyzer = patternRuleAnalyzerStorage.getPatternRuleById(ruleEntity.getId());
+                log.info("Current pattern rule: {}", ruleEntity.getId());
+                RuleResult patternEvaluationResult = patternRule.evaluate(transaction, ruleContext);
+                ruleResults.add(patternEvaluationResult);
+                if (patternEvaluationResult.triggered()) {
+                    log.info("Pattern rule was triggered: {}", ruleEntity.getName());
+                    triggeredRuleNames.add(ruleEntity.getName());
+                    isSuspicious = true;
+                    reasons.add(patternEvaluationResult.reason());
+                }
+            } else if (ruleEntity.getType().equals(RuleType.COMPOSITE)) {
                 val compositeRule = compositeRuleFactory.createCompositeRule(ruleEntity);
                 log.info("Current composite rule: {}", ruleEntity.getName());
                 RuleResult compositeEvaluationResult = compositeRule.evaluate(transaction);
@@ -63,7 +91,7 @@ public class RuleEngine {
                     isSuspicious = true;
                     reasons.add(compositeEvaluationResult.reason());
                 }
-            } if (ruleEntity.getType().equals(RuleType.ML)) {
+            } else if (ruleEntity.getType().equals(RuleType.ML)) {
                 val mlRule = ruleFactory.createRule(ruleEntity);
                 log.info("Current ml rule: {}", ruleEntity.getName());
                 RuleResult mlEvaluationResult = mlRule.evaluate(transaction);

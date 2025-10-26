@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RuleFactory {
 
+    private final PatternRuleAnalyzerStorage patternRuleAnalyzerStorage;
+
     private final MLClient mlClient;
 
     public Rule createRule(RuleEntity ruleEntity) {
@@ -22,8 +24,6 @@ public class RuleFactory {
                         ruleEntity.getParams(),
                         ruleEntity.getName()
                 );
-            case PATTERN:
-                return new PatternRule();
             case ML:
                 return new MLRule(
                         ruleEntity.getId(),
@@ -32,6 +32,14 @@ public class RuleFactory {
                         ruleEntity.getParams(),
                         ruleEntity.getName(),
                         mlClient
+                );
+            case PATTERN:
+                return new PatternRule(
+                        ruleEntity.getId(),
+                        ruleEntity.getPriority(),
+                        ruleEntity.isEnabled(),
+                        ruleEntity.getParams(),
+                        patternRuleAnalyzerStorage.getPatternRuleById(ruleEntity.getId())
                 );
             default:
                 throw new IllegalArgumentException("Unsupported rule type: " + ruleEntity.getType());

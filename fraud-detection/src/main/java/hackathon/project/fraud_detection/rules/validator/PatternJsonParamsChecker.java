@@ -23,11 +23,11 @@ public class PatternJsonParamsChecker extends JsonParamsChecker {
     public boolean checkJsonParams(String params, RuleType ruleType) {
 
         String by = (String) parseJsonParams(params).get("by");
-        String windowMin = (String) parseJsonParams(params).get("windowMin");
+        String windowMin = parseJsonParams(params).get("windowMin").toString();
         String operator = (String) parseJsonParams(params).get("operator");
         String field = (String) parseJsonParams(params).get("field");
-        String value = (String) parseJsonParams(params).get("value");
-        String minCount = (String) parseJsonParams(params).get("minCount");
+        String value = parseJsonParams(params).get("value").toString();
+        String minCount = parseJsonParams(params).get("minCount").toString();
 
         if (by == null || windowMin == null || operator == null || field == null || value == null || minCount == null) {
             throw new IllegalArgumentException("Not all neccessary params are present");

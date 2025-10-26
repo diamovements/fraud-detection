@@ -5,7 +5,9 @@ import hackathon.project.fraud_detection.rules.model.RuleResult;
 import hackathon.project.fraud_detection.rules.model.RuleType;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Component
@@ -16,4 +18,11 @@ public abstract class Rule {
     int priority;
     String name;
     abstract public RuleResult evaluate(TransactionRequest transactionRequest);
+    abstract public RuleResult evaluate(TransactionRequest transactionRequest, RuleContext ruleContext);
+
+    protected Map<String, Object> parseJsonParams(String params) {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(params, new tools.jackson.core.type.TypeReference<>() {});
+    }
+
 }
