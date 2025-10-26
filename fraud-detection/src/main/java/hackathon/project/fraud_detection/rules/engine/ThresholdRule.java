@@ -37,10 +37,22 @@ public class ThresholdRule extends Rule {
         this.ruleType = RuleType.THRESHOLD;
     }
 
+    // для паттерном, поэтому имя необязательно
+    public ThresholdRule(UUID id, int priority, boolean enabled, String field, Operator operator, Object value) {
+        this.id = id;
+        this.priority = priority;
+        this.enabled = enabled;
+        this.field = field;
+        this.operator = operator;
+        this.value = value;
+        this.name = "";
+        this.ruleType = RuleType.THRESHOLD;
+    }
+
     @Override
     public RuleResult evaluate(TransactionRequest transactionRequest) {
         try {
-            Object fieldValue = getFieldValue(transactionRequest, field);
+            Object fieldValue = transactionRequest.getFieldValue(field);
             log.info("fieldValue, operator, value: {}, {}, {}", fieldValue, operator, value);
             boolean triggered = evaluateCondition(fieldValue, operator, value);
             String reason = triggered ?
@@ -57,38 +69,25 @@ public class ThresholdRule extends Rule {
         }
     }
 
-    private Object getFieldValue(TransactionRequest transaction, String field) {
-        return switch (field) {
-            case "amount" -> transaction.amount();
-            case "transaction_type" -> transaction.transactionType();
-            case "timestamp" -> transaction.timestamp();
-            case "sender_account" -> transaction.senderAccount();
-            case "receiver_account" -> transaction.receiverAccount();
-            case "merchant_category" -> transaction.merchantCategory();
-            case "location" -> transaction.location();
-            case "device_used" -> transaction.deviceUsed();
-            case "payment_channel" -> transaction.paymentChannel();
-            case "ip_address" -> transaction.ipAddress();
-            case "device_hash" -> transaction.deviceHash();
-            default -> throw new IllegalArgumentException("Unknown field: " + field);
-        };
-    }
+    //подумать как выпилить отсюда проверки тк все теперь валидируется на входе
+    // и некорректные params в базу не попадают
 
-    private boolean evaluateCondition(Object actual, Operator operator, Object expected) {
-        if (actual instanceof LocalDateTime && expected instanceof String) {
+    public boolean evaluateCondition(Object actual, Operator operator, Object expected) {
+        if (actual instanceof LocalDateTime) {
             expected = LocalTime.parse((String) expected);
-        } if (actual instanceof BigDecimal && expected instanceof String) {
-            expected = BigDecimal.valueOf(Double.parseDouble((String) expected));
-        }
-
-        return switch (actual) {
-            case BigDecimal bigDecimal -> evaluateNumericCondition(bigDecimal,
-                    operator, (BigDecimal) expected);
-            case String s -> evaluateStringCondition(s, operator, (String) expected);
-            case LocalDateTime localDateTime -> evaluateTimeCondition(localDateTime.toLocalTime(),
+            LocalTime localTime = LocalTime.parse((String) actual);
+            return evaluateTimeCondition(localTime,
                     operator, expected);
-            default -> throw new IllegalArgumentException("Unsupported type of value: " + actual.getClass());
-        };
+        } else if (actual instanceof BigDecimal || actual instanceof Integer) {
+            expected = new BigDecimal((String) expected);
+            BigDecimal bigDecimal = BigDecimal.valueOf(Double.parseDouble((String) actual));
+            return evaluateNumericCondition(bigDecimal,
+                    operator, (BigDecimal) expected);
+        }
+        else{
+            evaluateStringCondition((String) actual, operator, (String) expected);
+        }
+        throw new IllegalArgumentException("Unsupported type of value: " + actual.getClass());
     }
 
 
@@ -131,8 +130,4 @@ public class ThresholdRule extends Rule {
         return LocalTime.parse(time, DateTimeFormatter.ofPattern("HH:mm"));
     }
 
-    private Map<String, Object> parseJsonParams(String params) {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(params, new tools.jackson.core.type.TypeReference<>() {});
-    }
 }

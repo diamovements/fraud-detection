@@ -75,5 +75,21 @@ public record TransactionRequest(
         );
     }
 
+    public Object getFieldValue(String field) {
+        return switch (field) {
+            case "amount" -> this.amount();
+            case "transaction_type" -> this.transactionType();
+            case "timestamp" -> this.timestamp();
+            case "sender_account" -> this.senderAccount();
+            case "receiver_account" -> this.receiverAccount();
+            case "merchant_category" -> this.merchantCategory();
+            case "location" -> this.location();
+            case "device_used" -> this.deviceUsed();
+            case "payment_channel" -> this.paymentChannel();
+            case "ip_address" -> this.ipAddress();
+            case "device_hash" -> this.deviceHash();
+            default -> throw new IllegalArgumentException("Unknown field: " + field);
+        };
+    }
 
 }

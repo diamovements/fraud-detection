@@ -50,11 +50,6 @@ public class CompositeRule extends Rule {
         return new RuleResult(ast.evaluate(evaluationContext), "composite rule triggered");
     }
 
-    private Map<String, Object> parseJsonParams(String params) {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(params, new tools.jackson.core.type.TypeReference<>() {});
-    }
-
     private Expression compileExpression() {
         ExpressionParser parser = new ExpressionParser(expression);
         return parser.parse();
