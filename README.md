@@ -80,48 +80,48 @@
 ### Админ-панель
 В админ-панели реализованы следующие страницы<br>
 **/main**<br>
-![main](src_readme\main.jpg)<br>
+![main](src_readme/main.jpg)<br>
 Приветственная страница<br>
 <br>**/signup**<br>
-![signup](src_readme\signup.jpg)<br>
+![signup](src_readme/signup.jpg)<br>
 Страница регистрации<br>
 <br>**/signin**<br>
-![signin](src_readme\signin.jpg)<br>
+![signin](src_readme/signin.jpg)<br>
 Страница авторизации<br>
 <br>**/rules**<br>
-![rules](src_readme\rules.jpg)<br>
+![rules](src_readme/rules.jpg)<br>
 Страница просмотра, добавления, редактирования правил<br>
-![rules_disabled](src_readme\rules_disabled.jpg)<br>
+![rules_disabled](src_readme/rules_disabled.jpg)<br>
 Правила можно отключать
-![rules_creating_empty](src_readme\rules_creating_empty.jpg)<br>
+![rules_creating_empty](src_readme/rules_creating_empty.jpg)<br>
 Правила можно создавать, выбирая тип, назначая приоритет и имя.
-![rules_creating_composite](src_readme\rules_creating_composite.jpg)<br>
+![rules_creating_composite](src_readme/rules_creating_composite.jpg)<br>
 Пример заполненного правила.
-![rules_adding_ml](src_readme\rules_adding_ml.jpg)<br>
+![rules_adding_ml](src_readme/rules_adding_ml.jpg)<br>
 Также можно добавлять или выбирать из имеющихся МЛ модель.
 <br>**/transactions**<br>
-![transactions](src_readme\transactions.jpg)<br>
+![transactions](src_readme/transactions.jpg)<br>
 Страница транзакций<br>
-![transactions_details](src_readme\transactions_details.jpg)<br>
+![transactions_details](src_readme/transactions_details.jpg)<br>
 Можно посмотреть детальную информацию по транзакции<br>
-![transactions_filtered](src_readme\transactions_filtered.jpg)<br>
+![transactions_filtered](src_readme/transactions_filtered.jpg)<br>
 Также добавлены фильтры по транзакции<br>
-![csv](src_readme\csv.jpg)<br>
+![csv](src_readme/csv.jpg)<br>
 Есть возможность выгрузки csv-отчёта по транзакциям<br>
 <br>**/stats**<br>
 Страница статистики<br>
-![stats_1](src_readme\stats_1.jpg)<br>
-![stats_2](src_readme\stats_2.jpg)<br>
+![stats_1](src_readme/stats_1.jpg)<br>
+![stats_2](src_readme/stats_2.jpg)<br>
 Система мониторится и данные выводятся в раздел статистики, для удобства отслеживания логов реализован corellationId, который позволяет отслеживать путь транзакции. <br>
 ### Уведомления
 <br>**Почта**<br>
 Уведомления о фрод-транзакциях на почту<br>
 Чтобы уведомления приходили на почту нужно указать её при регистрации<br>
-![mail](src_readme\mail.jpg)<br>
+![mail](src_readme/mail.jpg)<br>
 <br>**ТГ**<br>
 Уведомления о фрод-транзакциях в ТГ бота<br>
 Что уведомления приходили в тг бота нужно предварительно запустить бота @FroudDTBot, после старта он вышлет id. Этот id нужно задать при регистрации. После этого бот будет присылать уведомления.
-![tg](src_readme\tg.jpg)<br>
+![tg](src_readme/tg.jpg)<br>
 
 
 
