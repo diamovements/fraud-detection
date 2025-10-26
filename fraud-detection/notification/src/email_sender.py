@@ -75,7 +75,7 @@ class EmailSender:
             print(f"   Тема: {subject}")
             
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
-                server.starttls()  # Включаем шифрование
+                server.starttls()
                 server.login(self.login, self.password)
                 server.send_message(msg, to_addrs=all_recipients)
             
@@ -108,15 +108,15 @@ class EmailSender:
             triggered_rules: Список сработавших правил
             cc_emails: Получатели копии
         """
-        subject = f"🚨 Подозрительная операция #{transaction_id}"
+        subject = f"Подозрительная операция #{transaction_id}"
         
         message = f"""
                             Обнаружена подозрительная операция:
 
                             ID транзакции: {transaction_id}
                             Счет: {account}
-                            Сумма: {amount} руб.
-                            Вероятность мошенничества: {ml_probability}%
+                            Сумма: {amount}
+                            Вероятность мошенничества: {ml_probability * 100}%
 
                             Сработавшее правило
                             

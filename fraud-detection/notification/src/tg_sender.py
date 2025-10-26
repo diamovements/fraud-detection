@@ -100,8 +100,8 @@ class TelegramBot:
 
 <b>ID транзакции:</b> {transaction_id}
 <b>Счет:</b> {account}
-<b>Сумма:</b> {amount} руб.
-<b>Вероятность мошенничества:</b> {ml_probability}%
+<b>Сумма:</b> {amount}
+<b>Вероятность мошенничества:</b> {ml_probability * 100}%
 
 <b>Сработавшие правила:</b>
 {chr(10).join(f'• {rule}' for rule in triggered_rules)}
