@@ -1,6 +1,6 @@
 CREATE TABLE transaction (
      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-     status VARCHAR(20) NOT NULL CHECK (status IN ('PROCESSING', 'APPROVED', 'SUSPICIOUS')),
+     status VARCHAR(20) NOT NULL CHECK (status IN ('PROCESSING', 'APPROVED', 'SUSPICIOUS', 'REVIEWED')),
      original_transaction_id VARCHAR(255) NOT NULL UNIQUE,
      correlation_id VARCHAR(255) NOT NULL UNIQUE,
      timestamp TIMESTAMP NOT NULL,

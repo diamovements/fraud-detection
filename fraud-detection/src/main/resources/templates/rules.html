@@ -722,7 +722,7 @@
         try {
             const token = localStorage.getItem('accessToken');
             const response = await fetch(`/api/rules/delete/${id}`, {
-                method: 'DELETE',
+                method: 'POST',
                 headers: {
                     'Authorization': 'Bearer ' + token
                 }
@@ -732,8 +732,14 @@
                 throw new Error('Ошибка удаления правила');
             }
 
+            const ruleElement = document.getElementById(`rule-${id}`);
+            if (ruleElement) {
+                ruleElement.style.display = 'none';
+            }
+
+            rules = rules.filter(rule => rule.id !== id);
+
             showAlert('Правило удалено', 'success');
-            await loadRules();
 
         } catch (error) {
             showAlert('Ошибка при удалении правила: ' + error.message, 'danger');

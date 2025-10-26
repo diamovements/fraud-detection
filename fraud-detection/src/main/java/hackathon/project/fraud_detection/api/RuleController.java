@@ -58,7 +58,7 @@ public class RuleController {
         return ResponseEntity.ok(toggledRule);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @PostMapping("/delete/{id}")
     public void deleteRule(@PathVariable UUID id) {
         ruleService.deleteRule(id);
     }
