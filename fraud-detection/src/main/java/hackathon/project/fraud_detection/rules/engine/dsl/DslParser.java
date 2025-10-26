@@ -30,3 +30,5 @@ public class DslParser {
     }
 
 }
+
+// isAmountMore

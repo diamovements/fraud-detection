@@ -33,6 +33,7 @@ public class AuthenticationService {
                 .login(request.login())
                 .role(Role.ROLE_ADMIN)
                 .password(passwordEncoder.encode(request.password()))
+                .telegramId(request.telegramId())
                 .build();
         user = userRepository.save(user);
         log.info("User {} saved, with role {}", user.getLogin(), user.getRole());

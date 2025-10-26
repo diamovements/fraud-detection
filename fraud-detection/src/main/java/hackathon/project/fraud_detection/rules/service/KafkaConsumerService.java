@@ -2,6 +2,8 @@ package hackathon.project.fraud_detection.rules.service;
 
 import hackathon.project.fraud_detection.api.dto.TransactionMessage;
 import hackathon.project.fraud_detection.api.dto.request.TransactionRequest;
+import hackathon.project.fraud_detection.notifications.SendNotificationsClient;
+import hackathon.project.fraud_detection.rules.ml.MLClient;
 import hackathon.project.fraud_detection.exceptions.DBWritingException;
 import hackathon.project.fraud_detection.rules.engine.PatternRule;
 import hackathon.project.fraud_detection.rules.engine.PatternRuleAnalyzer;
@@ -13,7 +15,6 @@ import hackathon.project.fraud_detection.storage.entity.TransactionStatus;
 import hackathon.project.fraud_detection.storage.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class KafkaConsumerService {
     private final RuleEngine ruleEngine;
     private final TransactionRepository transactionRepository;
+    private final SendNotificationsClient sendNotificationsClient;
+    private final MLClient mlClient;
 
     @KafkaListener(topics = "transaction_topic", groupId = "my-group")
     @Transactional
@@ -47,6 +50,13 @@ public class KafkaConsumerService {
                     transaction.getTriggeredRules(),
                     transaction.getSuspicious()
             );
+            if (transaction.getSuspicious()) {
+                log.info("Suspicious transaction detected, sending notifications");
+                sendNotificationsClient.sendNotifications(
+                        transaction,
+                        mlClient.predictFraud("log_reg", transactionRequest)
+                );
+            }
         } catch(Exception exception){
             log.info("Error while updating rule in database: {}", exception.getMessage());
         }

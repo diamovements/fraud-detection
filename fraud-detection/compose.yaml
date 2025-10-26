@@ -203,6 +203,59 @@ services:
     networks:
       - fraud-network
 
+  notification-api:
+    build:
+      context: ./notification
+      dockerfile: Dockerfile
+    container_name: notification-api
+    ports:
+      - "8001:8001"
+    environment:
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - DATABASE_URL=postgresql://${DB_USERNAME}:${DB_PASSWORD}@postgres:5432/fraud_detection
+    env_file:
+      - .env
+    volumes:
+      - ./notification/data:/app/data
+    restart: unless-stopped
+    command: python -m uvicorn src.main:app --host 0.0.0.0 --port 8001
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - fraud-network
+
+  notification-bot:
+    build:
+      context: ./notification
+      dockerfile: Dockerfile
+    container_name: notification-bot
+    environment:
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - DATABASE_URL=postgresql://${DB_USERNAME}:${DB_PASSWORD}@postgres:5432/fraud_detection
+      - NOTIFICATION_API_URL=http://notification-api:8001
+    env_file:
+      - .env
+    volumes:
+      - ./notification/data:/app/data
+    restart: unless-stopped
+    command: python src/bot.py
+    depends_on:
+      notification-api:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - fraud-network
+
 volumes:
   postgres_data:
   grafana_data:

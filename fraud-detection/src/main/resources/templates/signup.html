@@ -42,7 +42,7 @@
             </div>
 
             <div class="mb-3">
-                <label for="login" class="form-label">Логин</label>
+                <label for="login" class="form-label">Почта</label>
                 <input type="text" class="form-control" id="login" name="login" required>
             </div>
 
@@ -54,6 +54,11 @@
             <div class="mb-3">
                 <label for="confirmPassword" class="form-label">Подтвердите пароль</label>
                 <input type="password" class="form-control" id="confirmPassword" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="telegramId" class="form-label">ID пользователя в телеграме</label>
+                <input type="text" class="form-control" id="telegramId" name="telegramId" required>
             </div>
 
             <button type="submit" class="btn btn-primary w-100 mb-3">Зарегистрироваться</button>
@@ -82,7 +87,8 @@
             name: document.getElementById('name').value,
             surname: document.getElementById('surname').value,
             login: document.getElementById('login').value,
-            password: password
+            password: password,
+            telegramId: document.getElementById('telegramId').value
         };
 
         try {
