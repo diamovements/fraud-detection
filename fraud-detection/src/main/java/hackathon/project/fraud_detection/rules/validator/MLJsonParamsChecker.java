@@ -11,12 +11,14 @@ import java.util.regex.Pattern;
 public class MLJsonParamsChecker extends JsonParamsChecker {
     @Override
     public boolean checkJsonParams(String params, RuleType ruleType) {
-        if (!hasRequiredFields(params)) {
-            throw new IllegalArgumentException("Not all necessary params are present");
-        }
+
         String operator = (String) parseJsonParams(params).get("operator");
         String modelName = (String) parseJsonParams(params).get("model_name");
         Object value = parseJsonParams(params).get("value");
+
+        if(operator == null || modelName == null || value == null){
+            throw new IllegalArgumentException("Not all necessary params are present");
+        }
 
         if (!isValidOperator(operator)) {
             throw new IllegalArgumentException("Operator is invalid");
@@ -33,14 +35,7 @@ public class MLJsonParamsChecker extends JsonParamsChecker {
         return true;
     }
 
-    @Override
-    boolean hasRequiredFields(String params) {
-        return params.contains("model_name")
-                && params.contains("operator")
-                && params.contains("value");
-    }
-
-    private boolean isValidOperator(String operator) {
+    protected boolean isValidOperator(String operator) {
         return switch (operator) {
             case "EQUAL",
                  "NOT_EQUAL",

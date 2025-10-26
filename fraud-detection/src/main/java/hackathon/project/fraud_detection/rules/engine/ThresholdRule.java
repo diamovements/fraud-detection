@@ -37,6 +37,7 @@ public class ThresholdRule extends Rule {
         this.ruleType = RuleType.THRESHOLD;
     }
 
+    // для паттерном, поэтому имя необязательно
     public ThresholdRule(UUID id, int priority, boolean enabled, String field, Operator operator, Object value) {
         this.id = id;
         this.priority = priority;
@@ -44,6 +45,7 @@ public class ThresholdRule extends Rule {
         this.field = field;
         this.operator = operator;
         this.value = value;
+        this.name = "";
         this.ruleType = RuleType.THRESHOLD;
     }
 

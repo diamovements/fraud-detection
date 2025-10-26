@@ -27,7 +27,6 @@ import java.util.UUID;
 public class RuleEngine {
 
     private final RuleRepository ruleRepository;
-    private final RuleContext ruleContext;
     private final RuleFactory ruleFactory;
     private final RuleCacheService ruleCacheService;
     private final PatternRuleAnalyzerStorage patternRuleAnalyzerStorage;
@@ -48,7 +47,7 @@ public class RuleEngine {
         for (PatternRuleAnalyzer analyzer : patternRuleAnalyzerStorage.getAnalyzers()) {
             PatternRule patternRule = analyzer.getPatternRule();
             ThresholdRule thresholdRule = new ThresholdRule(null, patternRule.getPriority(), patternRule.getEnabled(), patternRule.getField(), patternRule.getOperator(), patternRule.getValue());
-            RuleResult thresholdEvaluationResult = thresholdRule.evaluate(transaction, ruleContext);
+            RuleResult thresholdEvaluationResult = thresholdRule.evaluate(transaction);
             if(thresholdEvaluationResult.triggered()){
                 analyzer.updateMap(patternRule.getBy(), transaction.timestamp());
             }
@@ -72,7 +71,7 @@ public class RuleEngine {
                 var patternRule = ruleFactory.createRule(ruleEntity);
                 //PatternRuleAnalyzer patternRuleAnalyzer = patternRuleAnalyzerStorage.getPatternRuleById(ruleEntity.getId());
                 log.info("Current pattern rule: {}", ruleEntity.getId());
-                RuleResult patternEvaluationResult = patternRule.evaluate(transaction, ruleContext);
+                RuleResult patternEvaluationResult = patternRule.evaluate(transaction);
                 ruleResults.add(patternEvaluationResult);
                 if (patternEvaluationResult.triggered()) {
                     log.info("Pattern rule was triggered: {}", ruleEntity.getName());

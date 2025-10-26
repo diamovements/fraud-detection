@@ -18,7 +18,6 @@ public abstract class Rule {
     int priority;
     String name;
     abstract public RuleResult evaluate(TransactionRequest transactionRequest);
-    abstract public RuleResult evaluate(TransactionRequest transactionRequest, RuleContext ruleContext);
 
     protected Map<String, Object> parseJsonParams(String params) {
         ObjectMapper mapper = new ObjectMapper();

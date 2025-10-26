@@ -52,7 +52,7 @@ public class PatternRule extends Rule {
     }
 
     @Override
-    public RuleResult evaluate(TransactionRequest transactionRequest, RuleContext ruleContext) {
+    public RuleResult evaluate(TransactionRequest transactionRequest) {
         boolean triggered = thresholdRule.evaluateCondition(transactionRequest.getFieldValue(field), operator, value);
         if (triggered) {
             triggered = patternRuleAnalyzer.checkTransaction(by, transactionRequest.timestamp(), (Integer) minCount);

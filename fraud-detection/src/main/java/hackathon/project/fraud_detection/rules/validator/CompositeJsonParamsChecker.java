@@ -15,7 +15,7 @@ public class CompositeJsonParamsChecker extends JsonParamsChecker {
         return hasRequiredFields(params) && hasCorrectSyntax(params);
     }
 
-    @Override
+
     boolean hasRequiredFields(String params) {
         return params.contains("expr");
     }

@@ -66,11 +66,6 @@ public class MLRule extends Rule {
         };
     }
 
-    private Map<String, Object> parseJsonParams(String params) {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(params, new tools.jackson.core.type.TypeReference<>() {});
-    }
-
     private double castToDouble(Object value) {
         if (value instanceof String) {
             return Double.parseDouble((String) value);
