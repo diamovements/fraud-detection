@@ -46,7 +46,6 @@ class EmailSender:
             bool: Успешно ли отправлено
         """
         try:
-            # Преобразуем в списки если пришла строка
             if isinstance(to_emails, str):
                 to_emails = [to_emails]
             
@@ -61,14 +60,11 @@ class EmailSender:
             msg['To'] = ', '.join(to_emails)
             msg['Subject'] = subject
             
-            # Добавляем получателей копии в заголовок
             if cc_emails:
                 msg['Cc'] = ', '.join(cc_emails)
             
-            # Добавляем текст сообщения
             msg.attach(MIMEText(message, 'plain'))
             
-            # Формируем список ВСЕХ получателей (To + Cc)
             all_recipients = to_emails + cc_emails
             
             print(f"📧 Отправка email:")
@@ -78,17 +74,16 @@ class EmailSender:
                 print(f"   Копия: {cc_emails}")
             print(f"   Тема: {subject}")
             
-            # Отправляем через SMTP
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
                 server.starttls()  # Включаем шифрование
                 server.login(self.login, self.password)
                 server.send_message(msg, to_addrs=all_recipients)
             
-            print("✅ Email успешно отправлен!")
+            print("Email успешно отправлен!")
             return True
             
         except Exception as e:
-            print(f"❌ Ошибка отправки email: {e}")
+            print(f"Ошибка отправки email: {e}")
             return False
     
     def send_transaction_alert(
@@ -115,7 +110,6 @@ class EmailSender:
         """
         subject = f"🚨 Подозрительная операция #{transaction_id}"
         
-        # Формируем текст сообщения
         message = f"""
                             Обнаружена подозрительная операция:
 

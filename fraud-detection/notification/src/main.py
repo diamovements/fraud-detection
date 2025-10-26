@@ -43,15 +43,15 @@ class TelegramAlertRequest(BaseModel):
 
 def get_telegram_bot():
     """
-    🔌 ФАБРИКА ДЛЯ СОЗДАНИЯ TELEGRAM BOT
+    ФАБРИКА ДЛЯ СОЗДАНИЯ TELEGRAM BOT
     """
     bot_token = os.getenv("BOT_TOKEN")
     
     if not bot_token:
-        raise ValueError("❌ BOT_TOKEN must be set in .env file")
+        raise ValueError("BOT_TOKEN must be set in .env file")
     
     telegram_bot = TelegramBot(bot_token=bot_token)
-    print("✅ Telegram bot created successfully")
+    print("Telegram bot created successfully")
     return telegram_bot
 
 def get_email_sender():
@@ -61,7 +61,7 @@ def get_email_sender():
     email_password = os.getenv("EMAIL_PASSWORD")
     
     if not email_login or not email_password:
-        raise ValueError("❌ EMAIL_LOGIN and EMAIL_PASSWORD must be set in .env file")
+        raise ValueError("EMAIL_LOGIN and EMAIL_PASSWORD must be set in .env file")
     
     email_sender = EmailSender(
         smtp_server=smtp_server,
@@ -70,7 +70,7 @@ def get_email_sender():
         password=email_password
     )
     
-    print("✅ Email sender created successfully")
+    print("Email sender created successfully")
     return email_sender
 
 app = FastAPI(
@@ -84,7 +84,7 @@ async def send_email(
     request: EmailRequest,
     email_sender: EmailSender = Depends(get_email_sender)
 ):
-    print(f"📨 Received request to send email to: {request.to_emails}")
+    print(f"Received request to send email to: {request.to_emails}")
     
     success = email_sender.send_email(
         to_emails=request.to_emails,
@@ -111,7 +111,7 @@ async def send_transaction_alert(
     request: TransactionAlertRequest,
     email_sender: EmailSender = Depends(get_email_sender)
 ):
-    print(f"🚨 Received transaction alert for: {request.transaction_id}")
+    print(f"Received transaction alert for: {request.transaction_id}")
     
     success = email_sender.send_transaction_alert(
         to_emails=request.to_emails,
@@ -143,11 +143,9 @@ async def send_telegram_alert(
     request: TelegramAlertRequest, 
     tg_sender: TelegramBot = Depends(get_telegram_bot)
 ):
-    """
-    🔔 ENDPOINT ДЛЯ TELEGRAM УВЕДОМЛЕНИЙ О ТРАНЗАКЦИЯХ
-    """
-    print(f"🔔 Received Telegram alert for transaction: {request.transaction_id}")
-    print(f"🔔 User IDs: {request.user_ids}")
+
+    print(f"Received Telegram alert for transaction: {request.transaction_id}")
+    print(f"User IDs: {request.user_ids}")
     
     success = tg_sender.send_transaction_alert(
         transaction_id=request.transaction_id,
@@ -174,7 +172,7 @@ async def send_telegram_alert(
 @app.get("/")
 async def root():
     return {
-        "message": "✅ Notification Service is running!",
+        "message": "Notification Service is running!",
         "docs": "Visit /docs for API documentation",
         "endpoints": {
             "send_email": "POST /send-email",

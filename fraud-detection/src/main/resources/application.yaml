@@ -43,6 +43,9 @@ ml:
     url: "http://ml-service:8000"
     timeout: 5000
 
+notifications:
+  url: http://notification-api:8001
+
 management:
   endpoints:
     web:

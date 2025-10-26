@@ -31,25 +31,22 @@ class TelegramBot:
         """
         Отправляет сообщение пользователям в Telegram
         """
-        # 🔧 ИСПРАВЛЕНИЕ: Обработка user_ids
         if user_ids is None:
             user_ids = self.default_user_ids
         elif isinstance(user_ids, str):
             user_ids = [user_ids]
         
-        # 🔧 ДОБАВЛЕНО: Проверка на пустой список
         if not user_ids:
-            print("❌ Нет user_ids для отправки сообщения")
+            print("Нет user_ids для отправки сообщения")
             return False
 
         success_count = 0
         total_users = len(user_ids)
         
-        print(f"🔔 Отправка сообщения {total_users} пользователям: {user_ids}")
+        print(f"Отправка сообщения {total_users} пользователям: {user_ids}")
         
         for user_id in user_ids:
             try:
-                # Формируем параметры запроса
                 params = {
                     'chat_id': user_id,
                     'text': message,
@@ -57,7 +54,6 @@ class TelegramBot:
                     'disable_notification': disable_notification
                 }
                 
-                # Отправляем запрос
                 response = requests.post(
                     f"{self.base_url}sendMessage",
                     json=params,
@@ -66,16 +62,16 @@ class TelegramBot:
                 
                 if response.status_code == 200:
                     success_count += 1
-                    print(f"   ✅ Сообщение отправлено пользователю {user_id}")
+                    print(f"Сообщение отправлено пользователю {user_id}")
                 else:
                     error_data = response.json()
                     error_msg = error_data.get('description', 'Unknown error')
-                    print(f"   ❌ Ошибка отправки пользователю {user_id}: {error_msg}")
+                    print(f"Ошибка отправки пользователю {user_id}: {error_msg}")
                     
             except Exception as e:
-                print(f"   ❌ Ошибка при отправке пользователю {user_id}: {e}")
+                print(f"Ошибка при отправке пользователю {user_id}: {e}")
         
-        print(f"📊 Итог: отправлено {success_count}/{total_users} сообщений")
+        print(f"Итог: отправлено {success_count}/{total_users} сообщений")
         return success_count > 0
             
     def send_transaction_alert(
@@ -85,7 +81,7 @@ class TelegramBot:
         amount: float = 0,
         ml_probability: float = 0,
         triggered_rules: List[str] = None,
-        user_ids: Union[str, List[str], None] = None,  # 🔧 ПЕРЕМЕЩЕН параметр
+        user_ids: Union[str, List[str], None] = None,
         priority: str = "medium"
     ) -> bool:
         """
@@ -94,13 +90,11 @@ class TelegramBot:
         if triggered_rules is None:
             triggered_rules = []
         
-        # 🔧 ДОБАВЛЕНО: Логирование для отладки
-        print(f"🔔 Подготовка Telegram уведомления:")
+        print(f"Подготовка Telegram уведомления:")
         print(f"   user_ids: {user_ids}")
         print(f"   transaction_id: {transaction_id}")
         print(f"   account: {account}")
 
-        # Форматируем сообщение
         message = f"""
 <b>🚨 Подозрительная операция</b>
 
@@ -118,12 +112,11 @@ class TelegramBot:
 Автоматическая система уведомлений
 """
         
-        # Отключаем уведомления для низкого приоритета
         disable_notification = (priority == "low")
         
         return self.send_message(
             message=message.strip(),
-            user_ids=user_ids,  # 🔧 ПЕРЕДАЕМ user_ids
+            user_ids=user_ids,
             parse_mode="HTML",
             disable_notification=disable_notification
         )
@@ -136,11 +129,11 @@ class TelegramBot:
             response = requests.get(f"{self.base_url}getMe", timeout=5)
             if response.status_code == 200:
                 bot_info = response.json()['result']
-                print(f"✅ Бот @{bot_info['username']} подключен успешно")
+                print(f"Бот @{bot_info['username']} подключен успешно")
                 return True
             else:
-                print(f"❌ Ошибка подключения: {response.json().get('description', 'Unknown error')}")
+                print(f"Ошибка подключения: {response.json().get('description', 'Unknown error')}")
                 return False
         except Exception as e:
-            print(f"❌ Ошибка подключения к Telegram: {e}")
+            print(f"Ошибка подключения к Telegram: {e}")
             return False

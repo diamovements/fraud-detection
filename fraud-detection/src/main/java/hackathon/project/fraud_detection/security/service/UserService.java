@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class UserService implements UserDetailsService{
     @Transactional
     public User getUser(String login) {
         UserEntity user = userRepository.findByLogin(login).orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
-        return new User(user.getName(), user.getSurname(), user.getLogin());
+        return new User(user.getName(), user.getSurname(), user.getLogin(), user.getTelegramId());
     }
 
     @Override
@@ -45,5 +46,27 @@ public class UserService implements UserDetailsService{
     @Transactional
     public List<UserEntity> getAll() {
         return userRepository.findAll();
+    }
+
+    @Transactional
+    public String getTelegramId(String login) {
+        return userRepository.findByLogin(login)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found")).getTelegramId();
+    }
+
+    @Transactional
+    public List<String> getAllUserTelegramIds() {
+        return userRepository.findAll()
+                .stream()
+                .map(UserEntity::getTelegramId)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<String> getAllUserEmails() {
+        return userRepository.findAll()
+                .stream()
+                .map(UserEntity::getLogin)
+                .collect(Collectors.toList());
     }
 }

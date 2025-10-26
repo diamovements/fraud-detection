@@ -9,6 +9,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -30,6 +31,7 @@ public class UserEntity implements UserDetails {
     private UUID userId;
 
     @Column(unique = true, nullable = false)
+    @Email
     private String login;
 
     @Column(nullable = false)
@@ -44,6 +46,9 @@ public class UserEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    @Column(nullable = false)
+    private String telegramId;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
