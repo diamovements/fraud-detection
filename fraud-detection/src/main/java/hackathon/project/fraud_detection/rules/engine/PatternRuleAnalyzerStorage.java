@@ -5,10 +5,9 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
 @Getter
@@ -17,17 +16,19 @@ public class PatternRuleAnalyzerStorage {
     private final List<PatternRuleAnalyzer> analyzers;
 
     public PatternRuleAnalyzerStorage() {
-        this.analyzers = new ArrayList<>();
+        this.analyzers = new CopyOnWriteArrayList<>();
     }
 
-    public void addNewPatternRule(PatternRuleAnalyzer patternRuleAnalyzer){
-        analyzers.add(patternRuleAnalyzer);
+    public void addNewPatternRule(PatternRuleAnalyzer patternRuleAnalyzer) {
+        if (patternRuleAnalyzer != null) {
+            analyzers.add(patternRuleAnalyzer);
+        }
     }
 
     public PatternRuleAnalyzer getAnalyzerByRuleId(UUID ruleId) {
         return analyzers.stream()
                 .filter(analyzer -> analyzer.getPatternRule() != null &&
-                        analyzer.getPatternRule().getId().equals(ruleId))
+                        ruleId.equals(analyzer.getPatternRule().getId()))
                 .findFirst()
                 .orElse(null);
     }
@@ -35,8 +36,11 @@ public class PatternRuleAnalyzerStorage {
     @Scheduled(fixedRate = 60 * 1000)
     public void scheduledCleanup() {
         for (PatternRuleAnalyzer analyzer : analyzers) {
-            analyzer.cleanUp();
+            try {
+                analyzer.cleanUp();
+            } catch (Exception e) {
+                System.err.println("Error during cleanup: " + e.getMessage());
+            }
         }
     }
-
 }

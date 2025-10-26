@@ -1,7 +1,6 @@
 package hackathon.project.fraud_detection.rules.engine;
 
 import hackathon.project.fraud_detection.rules.ml.MLClient;
-import hackathon.project.fraud_detection.rules.model.RuleType;
 import hackathon.project.fraud_detection.storage.entity.RuleEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Component;
 public class RuleFactory {
 
     private final PatternRuleAnalyzerStorage patternRuleAnalyzerStorage;
-
     private final MLClient mlClient;
 
     public Rule createRule(RuleEntity ruleEntity) {

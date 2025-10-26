@@ -3,23 +3,16 @@ package hackathon.project.fraud_detection.rules.service;
 import hackathon.project.fraud_detection.api.dto.request.TransactionRequest;
 import hackathon.project.fraud_detection.rules.cache.RuleCacheService;
 import hackathon.project.fraud_detection.rules.engine.*;
-import hackathon.project.fraud_detection.rules.engine.CompositeRuleFactory;
-import hackathon.project.fraud_detection.rules.engine.Rule;
-import hackathon.project.fraud_detection.rules.engine.RuleFactory;
 import hackathon.project.fraud_detection.rules.model.RuleEvaluationResult;
 import hackathon.project.fraud_detection.rules.model.RuleResult;
 import hackathon.project.fraud_detection.rules.model.RuleType;
 import hackathon.project.fraud_detection.storage.entity.RuleEntity;
-import hackathon.project.fraud_detection.storage.repository.RuleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +23,7 @@ public class RuleEngine {
     private final RuleCacheService ruleCacheService;
     private final PatternRuleAnalyzerStorage patternRuleAnalyzerStorage;
     private final CompositeRuleFactory compositeRuleFactory;
+    private final Map<UUID, Rule> patternRuleCache = new ConcurrentHashMap<>();
 
     public RuleEvaluationResult evaluate(TransactionRequest transaction) {
         List<RuleResult> ruleResults = new ArrayList<>();
@@ -41,7 +35,7 @@ public class RuleEngine {
                 .stream()
                 .sorted(Comparator.comparing(RuleEntity::getPriority).reversed())
                 .toList();
-        rules.forEach(rule -> log.info("Found rule name: {}", rule.getName()));
+        rules.forEach(rule -> log.info("Found rule with name: {}", rule.getName()));
 
         for (RuleEntity ruleEntity : rules) {
             if (!ruleEntity.isEnabled()) continue;
@@ -58,23 +52,18 @@ public class RuleEngine {
                     reasons.add(thresholdEvaluationResult.reason());
                 }
             } else if (ruleEntity.getType().equals(RuleType.PATTERN)) {
-                var patternRule = ruleFactory.createRule(ruleEntity);
+                var rule = getOrCreatePatternRule(ruleEntity);
                 log.info("Current pattern rule: {}", ruleEntity.getName());
-                PatternRuleAnalyzer analyzer = patternRuleAnalyzerStorage.getAnalyzerByRuleId(ruleEntity.getId());
-                if (analyzer == null) {
-                    log.warn("PatternRuleAnalyzer not found for rule: {}", ruleEntity.getId());
-                    continue;
-                }
-                RuleResult patternEvaluationResult = patternRule.evaluate(transaction);
-                ruleResults.add(patternEvaluationResult);
-                if (patternEvaluationResult.triggered()) {
+                RuleResult evaluationResult = rule.evaluate(transaction);
+                ruleResults.add(evaluationResult);
+                if (evaluationResult.triggered()) {
                     log.info("Pattern rule was triggered: {}", ruleEntity.getName());
                     triggeredRuleNames.add(ruleEntity.getName());
                     isSuspicious = true;
-                    reasons.add(patternEvaluationResult.reason());
+                    reasons.add(evaluationResult.reason());
                 }
             } else if (ruleEntity.getType().equals(RuleType.COMPOSITE)) {
-                val compositeRule = compositeRuleFactory.createCompositeRule(ruleEntity);
+                var compositeRule = compositeRuleFactory.createCompositeRule(ruleEntity);
                 log.info("Current composite rule: {}", ruleEntity.getName());
                 RuleResult compositeEvaluationResult = compositeRule.evaluate(transaction);
                 ruleResults.add(compositeEvaluationResult);
@@ -85,7 +74,7 @@ public class RuleEngine {
                     reasons.add(compositeEvaluationResult.reason());
                 }
             } else if (ruleEntity.getType().equals(RuleType.ML)) {
-                val mlRule = ruleFactory.createRule(ruleEntity);
+                var mlRule = ruleFactory.createRule(ruleEntity);
                 log.info("Current ml rule: {}", ruleEntity.getName());
                 RuleResult mlEvaluationResult = mlRule.evaluate(transaction);
                 ruleResults.add(mlEvaluationResult);
@@ -97,7 +86,18 @@ public class RuleEngine {
                 }
             }
         }
-
         return new RuleEvaluationResult(isSuspicious, triggeredRuleNames, ruleResults, reasons);
+    }
+
+    private Rule getOrCreatePatternRule(RuleEntity ruleEntity) {
+        return patternRuleCache.computeIfAbsent(ruleEntity.getId(), id -> {
+            PatternRuleAnalyzer analyzer = patternRuleAnalyzerStorage.getAnalyzerByRuleId(id);
+            if (analyzer == null) {
+                log.warn("PatternRuleAnalyzer not found for rule: {}, creating new", id);
+                analyzer = new PatternRuleAnalyzer();
+                patternRuleAnalyzerStorage.addNewPatternRule(analyzer);
+            }
+            return ruleFactory.createRule(ruleEntity);
+        });
     }
 }
