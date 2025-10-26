@@ -18,6 +18,7 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -158,7 +159,7 @@ public class RuleCacheService {
     )
     public void deleteRule(UUID id) {
         log.info("Deleting rule: {}", id);
-        ruleRepository.deleteRuleEntityById(id);
+        setToggle(id);
     }
 
     private void setRuleFields(

@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<TransactionEntity, String> {
@@ -21,4 +22,13 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
                                      @Param("status") TransactionStatus status,
                                      @Param("triggeredRules") String triggeredRules,
                                      @Param("suspicious") boolean suspicious);
+
+    @Modifying
+    @Query("UPDATE TransactionEntity t SET " +
+            "t.status = :status, t.suspicious = :suspicious " +
+            "WHERE t.id = :id")
+    void updateTransactionStatus(@Param("id") UUID id,
+                                 @Param("status") TransactionStatus status,
+                                 @Param("suspicious") boolean suspicious);
+    TransactionEntity findById(UUID id);
 }

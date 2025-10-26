@@ -84,6 +84,14 @@
             max-height: 200px;
             overflow-y: auto;
         }
+
+        .reviewed-row {
+            background-color: #e8f4fd;
+        }
+
+        .reviewed-badge {
+            background-color: #17a2b8 !important;
+        }
     </style>
 </head>
 <body>
@@ -197,6 +205,7 @@
                             <option value="PROCESSING">В обработке</option>
                             <option value="APPROVED">Успешные</option>
                             <option value="SUSPICIOUS">Подозрительные</option>
+                            <option value="REVIEWED">Просмотренные</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -444,7 +453,8 @@
         const total = allTransactions.length;
         const suspicious = allTransactions.filter(t => t.suspicious === true).length;
         const processing = allTransactions.filter(t => t.status === 'PROCESSING').length;
-        const normal = total - suspicious;
+        const reviewed = allTransactions.filter(t => t.status === 'REVIEWED').length;
+        const normal = total - suspicious - reviewed;
 
         document.getElementById('totalTransactions').textContent = total;
         document.getElementById('suspiciousTransactions').textContent = suspicious;
@@ -583,7 +593,8 @@
 
         tableBody.innerHTML = pageTransactions.map(transaction => {
             const rowClass = transaction.suspicious ? 'suspicious-row' :
-                transaction.status === 'APPROVED' ? 'processing-row' : '';
+                transaction.status === 'APPROVED' ? 'processing-row' :
+                    transaction.status === 'REVIEWED' ? 'reviewed-row' : '';
 
             const originalTransactionId = transaction.originalTransactionId || transaction.id || 'N/A';
             const timestamp = transaction.timestamp ? formatDateTime(transaction.timestamp) : 'Не указано';
@@ -674,66 +685,152 @@
         if (!transaction) return;
 
         const detailsContent = document.getElementById('transactionDetailsContent');
+
+        const canChangeStatus = transaction.status === 'SUSPICIOUS' || transaction.status === 'PROCESSING';
+
         detailsContent.innerHTML = `
-            <div class="row">
-                <div class="col-md-6">
-                    <h6>Основная информация</h6>
-                    <table class="table table-sm">
-                        <tr><td><strong>ID транзакции:</strong></td><td>${transaction.originalTransactionId || transaction.id}</td></tr>
-                        <tr><td><strong>Correlation ID:</strong></td><td>${transaction.correlationId || 'Не указан'}</td></tr>
-                        <tr><td><strong>Сумма:</strong></td><td>${formatAmount(transaction.amount)}</td></tr>
-                        <tr><td><strong>Тип:</strong></td><td>${transaction.transactionType || 'Не указан'}</td></tr>
-                        <tr><td><strong>Статус:</strong></td><td>${getStatusText(transaction.status)}</td></tr>
-                        <tr><td><strong>Подозрительная:</strong></td><td>${transaction.suspicious ? 'Да' : 'Нет'}</td></tr>
-                    </table>
-                </div>
-                <div class="col-md-6">
-                    <h6>Счета</h6>
-                    <table class="table table-sm">
-                        <tr><td><strong>Счет отправителя:</strong></td><td>${transaction.senderAccount || 'Не указан'}</td></tr>
-                        <tr><td><strong>Счет получателя:</strong></td><td>${transaction.receiverAccount || 'Не указан'}</td></tr>
-                    </table>
-                </div>
-            </div>
-
-            <div class="row mt-3">
-                <div class="col-md-6">
-                    <h6>Временные метки</h6>
-                    <table class="table table-sm">
-                        <tr><td><strong>Дата транзакции:</strong></td><td>${formatDateTime(transaction.timestamp)}</td></tr>
-                        <tr><td><strong>Обработано в:</strong></td><td>${transaction.processedAt ? formatDateTime(transaction.processedAt) : 'В процессе'}</td></tr>
-                    </table>
-                </div>
-                <div class="col-md-6">
-                    <h6>Дополнительно</h6>
-                    <table class="table table-sm">
-                        <tr><td><strong>Категория:</strong></td><td>${transaction.merchantCategory || 'Не указана'}</td></tr>
-                        <tr><td><strong>Локация:</strong></td><td>${transaction.location || 'Не указана'}</td></tr>
-                        <tr><td><strong>Канал оплаты:</strong></td><td>${transaction.paymentChannel || 'Не указан'}</td></tr>
-                    </table>
-                </div>
-            </div>
-
-            ${transaction.triggeredRules ? `
-                <div class="mt-3">
-                    <h6>Сработавшие правила</h6>
-                    <div class="rules-list bg-light p-3 rounded">
-                        <pre class="mb-0">${transaction.triggeredRules}</pre>
-                    </div>
-                </div>
-            ` : ''}
-
-            <div class="mt-3">
-                <h6>Техническая информация</h6>
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Основная информация</h6>
                 <table class="table table-sm">
-                    <tr><td><strong>IP-адрес:</strong></td><td>${transaction.ipAddress || 'Не указан'}</td></tr>
-                    <tr><td><strong>Устройство:</strong></td><td>${transaction.deviceUsed || 'Не указано'}</td></tr>
-                    <tr><td><strong>Хеш устройства:</strong></td><td>${transaction.deviceHash || 'Не указан'}</td></tr>
+                    <tr><td><strong>ID транзакции:</strong></td><td>${transaction.originalTransactionId || transaction.id}</td></tr>
+                    <tr><td><strong>Correlation ID:</strong></td><td>${transaction.correlationId || 'Не указан'}</td></tr>
+                    <tr><td><strong>Сумма:</strong></td><td>${formatAmount(transaction.amount)}</td></tr>
+                    <tr><td><strong>Тип:</strong></td><td>${transaction.transactionType || 'Не указан'}</td></tr>
+                    <tr><td><strong>Статус:</strong></td>
+                        <td>
+                            <span class="badge ${getStatusBadgeClass(transaction.status)} status-badge">
+                                ${getStatusText(transaction.status)}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr><td><strong>Подозрительная:</strong></td><td>${transaction.suspicious ? 'Да' : 'Нет'}</td></tr>
                 </table>
             </div>
-        `;
+            <div class="col-md-6">
+                <h6>Счета</h6>
+                <table class="table table-sm">
+                    <tr><td><strong>Счет отправителя:</strong></td><td>${transaction.senderAccount || 'Не указан'}</td></tr>
+                    <tr><td><strong>Счет получателя:</strong></td><td>${transaction.receiverAccount || 'Не указан'}</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <h6>Временные метки</h6>
+                <table class="table table-sm">
+                    <tr><td><strong>Дата транзакции:</strong></td><td>${formatDateTime(transaction.timestamp)}</td></tr>
+                    <tr><td><strong>Обработано в:</strong></td><td>${transaction.processedAt ? formatDateTime(transaction.processedAt) : 'В процессе'}</td></tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h6>Дополнительно</h6>
+                <table class="table table-sm">
+                    <tr><td><strong>Категория:</strong></td><td>${transaction.merchantCategory || 'Не указана'}</td></tr>
+                    <tr><td><strong>Локация:</strong></td><td>${transaction.location || 'Не указана'}</td></tr>
+                    <tr><td><strong>Канал оплаты:</strong></td><td>${transaction.paymentChannel || 'Не указан'}</td></tr>
+                </table>
+            </div>
+        </div>
+
+        ${transaction.triggeredRules ? `
+            <div class="mt-3">
+                <h6>Сработавшие правила</h6>
+                <div class="rules-list bg-light p-3 rounded">
+                    <pre class="mb-0">${transaction.triggeredRules}</pre>
+                </div>
+            </div>
+        ` : ''}
+
+        <div class="mt-3">
+            <h6>Техническая информация</h6>
+            <table class="table table-sm">
+                <tr><td><strong>IP-адрес:</strong></td><td>${transaction.ipAddress || 'Не указан'}</td></tr>
+                <tr><td><strong>Устройство:</strong></td><td>${transaction.deviceUsed || 'Не указано'}</td></tr>
+                <tr><td><strong>Хеш устройства:</strong></td><td>${transaction.deviceHash || 'Не указан'}</td></tr>
+            </table>
+        </div>
+
+        ${canChangeStatus ? `
+            <div class="mt-4 pt-3 border-top">
+                <h6>Управление статусом</h6>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-info" onclick="changeTransactionStatus('${transaction.id}', 'REVIEWED')">
+                        <i class="fas fa-search me-2"></i>Отметить как просмотренную
+                    </button>
+                    ${transaction.status === 'SUSPICIOUS' ? `
+                        <button class="btn btn-success" onclick="changeTransactionStatus('${transaction.id}', 'APPROVED')">
+                            <i class="fas fa-check me-2"></i>Одобрить транзакцию
+                        </button>
+                    ` : ''}
+                </div>
+                <small class="text-muted">Статус "На проверке" означает, что транзакция требует ручной проверки аналитиком</small>
+            </div>
+        ` : transaction.status === 'REVIEWED' ? `
+            <div class="mt-4 pt-3 border-top">
+                <h6>Статус транзакции</h6>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Эта транзакция находится на ручной проверке аналитиком
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success" onclick="changeTransactionStatus('${transaction.id}', 'APPROVED')">
+                        <i class="fas fa-check me-2"></i>Одобрить транзакцию
+                    </button>
+                    <button class="btn btn-warning" onclick="changeTransactionStatus('${transaction.id}', 'PROCESSING')">
+                        <i class="fas fa-undo me-2"></i>Вернуть в обработку
+                    </button>
+                </div>
+            </div>
+        ` : ''}
+    `;
 
         transactionDetailsModal.show();
+    }
+
+    async function changeTransactionStatus(transactionId, newStatus) {
+        if (!confirm(`Вы уверены, что хотите изменить статус транзакции на "${getStatusText(newStatus)}"?`)) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`/api/transactions/change-status/${transactionId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: newStatus
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Ошибка изменения статуса транзакции');
+            }
+
+            const transactionIndex = allTransactions.findIndex(t => t.id === transactionId);
+            if (transactionIndex !== -1) {
+                allTransactions[transactionIndex].status = newStatus;
+
+                if (newStatus === 'REVIEWED') {
+                    allTransactions[transactionIndex].suspicious = false;
+                }
+            }
+
+            updateStatistics();
+            applyFilters();
+
+            transactionDetailsModal.hide();
+
+            showAlert(`Статус транзакции изменен на "${getStatusText(newStatus)}"`, 'success');
+
+        } catch (error) {
+            console.error('Ошибка при изменении статуса:', error);
+            showAlert('Ошибка при изменении статуса транзакции: ' + error.message, 'danger');
+        }
     }
 
     function getStatusBadgeClass(status) {
@@ -741,6 +838,7 @@
             case 'APPROVED': return 'bg-success';
             case 'PROCESSING': return 'bg-warning';
             case 'SUSPICIOUS': return 'bg-danger';
+            case 'REVIEWED': return 'reviewed-badge';
             default: return 'bg-secondary';
         }
     }
@@ -750,6 +848,7 @@
             case 'APPROVED': return 'Одобрена';
             case 'PROCESSING': return 'В обработке';
             case 'SUSPICIOUS': return 'Подозрительная';
+            case 'REVIEWED': return 'Просмотрена';
             default: return status || 'Неизвестно';
         }
     }

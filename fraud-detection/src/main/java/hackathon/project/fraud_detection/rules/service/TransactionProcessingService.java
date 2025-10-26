@@ -6,11 +6,15 @@ import hackathon.project.fraud_detection.exceptions.DBWritingException;
 import hackathon.project.fraud_detection.exceptions.KafkaWritingError;
 import hackathon.project.fraud_detection.rules.model.RuleEvaluationResult;
 import hackathon.project.fraud_detection.storage.entity.TransactionEntity;
+import hackathon.project.fraud_detection.storage.entity.TransactionStatus;
 import hackathon.project.fraud_detection.storage.repository.TransactionRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -41,6 +45,23 @@ public class TransactionProcessingService {
             throw new KafkaWritingError("Ошибка записи в очередь");
         }
 
+    }
+
+    @Transactional
+    public void changeTransactionStatus(UUID transactionId, String newStatusStr) {
+        try {
+            TransactionStatus newStatus = TransactionStatus.valueOf(newStatusStr);
+            boolean shouldMarkAsNotSuspicious = newStatus == TransactionStatus.REVIEWED;
+
+            transactionRepository.updateTransactionStatus(
+                    transactionId,
+                    newStatus,
+                    shouldMarkAsNotSuspicious
+            );
+        } catch (Exception e) {
+            log.error("Error updating transaction status", e);
+            throw e;
+        }
     }
 
 }
