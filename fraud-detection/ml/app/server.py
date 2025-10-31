@@ -34,9 +34,6 @@ async def predict(model_name: str, data: dict):
 
 @app.get('/models/{model_name}/check')
 async  def check_model(model_name: str):
-    '''
-    Проверка существования и загрузки модели
-    '''
     try:
         model = prediction_model.load_model(model_name)
         return {

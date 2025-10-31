@@ -3,7 +3,6 @@ package hackathon.project.fraud_detection.api;
 import hackathon.project.fraud_detection.api.dto.request.CreateRuleRequest;
 import hackathon.project.fraud_detection.rules.cache.RuleCacheService;
 import hackathon.project.fraud_detection.storage.entity.RuleEntity;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

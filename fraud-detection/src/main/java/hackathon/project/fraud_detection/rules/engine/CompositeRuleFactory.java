@@ -8,8 +8,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-// отдельная фабрика тк юзаем внутри другую фабрику для проверки срабатывания
-// подправил, из-за этого была циклическая зависимость с сервисом SubRuleEvaluationService
 public class CompositeRuleFactory {
 
     private final DslParser dslParser;

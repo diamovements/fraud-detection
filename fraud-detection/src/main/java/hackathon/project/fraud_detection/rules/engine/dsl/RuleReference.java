@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-// ссылка на правило по имени
 public class RuleReference extends Expression {
     private final String name;
 

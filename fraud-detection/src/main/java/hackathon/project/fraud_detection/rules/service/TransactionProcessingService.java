@@ -24,9 +24,6 @@ public class TransactionProcessingService {
     private final KafkaProducerService kafkaProducerService;
 
     public void processTransaction(TransactionRequest transactionRequest) {
-
-        // валидация (+ как защита от ретраев включить проверку что id транзакции не совпадает с имеющими в кэше)
-        // если валидация пройдена, а иначе вернуть 400
         TransactionEntity transaction = TransactionEntity
                 .toTransactionEntity(transactionRequest);
         transaction.setCorrelationId(MDC.get("correlationId"));
@@ -34,15 +31,15 @@ public class TransactionProcessingService {
         try {
             transactionRepository.save(transaction);
         } catch(Exception exception){
-            log.info("ERROR: Ошибка записи в БД");
-            throw new DBWritingException("Ошибка записи в БД");
+            log.error("Error while saving transaction: {}", exception.getMessage());
+            throw new DBWritingException("Error while saving transaction");
         }
 
         try {
             kafkaProducerService.sendMessage(new TransactionMessage(transaction));
         } catch (Exception exception){
-            log.info("ERROR: Ошибка записи в очередь");
-            throw new KafkaWritingError("Ошибка записи в очередь");
+            log.error("Error while writing transaction to queue: {}", exception.getMessage());
+            throw new KafkaWritingError("Error while writing transaction to queue");
         }
 
     }
@@ -59,7 +56,7 @@ public class TransactionProcessingService {
                     shouldMarkAsNotSuspicious
             );
         } catch (Exception e) {
-            log.error("Error updating transaction status", e);
+            log.error("Error updating transaction status: {}", e.getMessage());
             throw e;
         }
     }

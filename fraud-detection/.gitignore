@@ -36,3 +36,4 @@ out/
 ### VS Code ###
 .vscode/
 fraud-detection.iml
+.env

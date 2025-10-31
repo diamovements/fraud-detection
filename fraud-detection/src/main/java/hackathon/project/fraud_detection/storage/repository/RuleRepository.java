@@ -8,6 +8,5 @@ import java.util.UUID;
 @Repository
 public interface RuleRepository extends JpaRepository<RuleEntity, String> {
     RuleEntity findRuleEntityById(UUID id);
-    void deleteRuleEntityById(UUID id);
     RuleEntity findRuleEntityByName(String name);
 }

@@ -43,50 +43,41 @@ public class RuleEngine {
             if (ruleEntity.getType().equals(RuleType.THRESHOLD)) {
                 var thresholdRule = ruleFactory.createRule(ruleEntity);
                 log.info("Current threshold rule: {}", ruleEntity.getName());
-                RuleResult thresholdEvaluationResult = thresholdRule.evaluate(transaction);
-                ruleResults.add(thresholdEvaluationResult);
-                if (thresholdEvaluationResult.triggered()) {
-                    log.info("Threshold rule was triggered: {}", ruleEntity.getName());
-                    triggeredRuleNames.add(ruleEntity.getName());
-                    isSuspicious = true;
-                    reasons.add(thresholdEvaluationResult.reason());
-                }
+                isSuspicious = getEvaluationResult(thresholdRule, transaction, ruleResults, reasons,
+                        ruleEntity, triggeredRuleNames);
             } else if (ruleEntity.getType().equals(RuleType.PATTERN)) {
-                var rule = getOrCreatePatternRule(ruleEntity);
+                var patternRule = getOrCreatePatternRule(ruleEntity);
                 log.info("Current pattern rule: {}", ruleEntity.getName());
-                RuleResult evaluationResult = rule.evaluate(transaction);
-                ruleResults.add(evaluationResult);
-                if (evaluationResult.triggered()) {
-                    log.info("Pattern rule was triggered: {}", ruleEntity.getName());
-                    triggeredRuleNames.add(ruleEntity.getName());
-                    isSuspicious = true;
-                    reasons.add(evaluationResult.reason());
-                }
+                isSuspicious = getEvaluationResult(patternRule, transaction, ruleResults, reasons,
+                        ruleEntity, triggeredRuleNames);
             } else if (ruleEntity.getType().equals(RuleType.COMPOSITE)) {
                 var compositeRule = compositeRuleFactory.createCompositeRule(ruleEntity);
                 log.info("Current composite rule: {}", ruleEntity.getName());
-                RuleResult compositeEvaluationResult = compositeRule.evaluate(transaction);
-                ruleResults.add(compositeEvaluationResult);
-                if (compositeEvaluationResult.triggered()) {
-                    log.info("Composite rule was triggered: {}", ruleEntity.getName());
-                    triggeredRuleNames.add(ruleEntity.getName());
-                    isSuspicious = true;
-                    reasons.add(compositeEvaluationResult.reason());
-                }
+                isSuspicious = getEvaluationResult(compositeRule, transaction, ruleResults, reasons,
+                        ruleEntity, triggeredRuleNames);
             } else if (ruleEntity.getType().equals(RuleType.ML)) {
                 var mlRule = ruleFactory.createRule(ruleEntity);
                 log.info("Current ml rule: {}", ruleEntity.getName());
-                RuleResult mlEvaluationResult = mlRule.evaluate(transaction);
-                ruleResults.add(mlEvaluationResult);
-                if (mlEvaluationResult.triggered()) {
-                    log.info("Ml rule was triggered: {}", ruleEntity.getName());
-                    triggeredRuleNames.add(ruleEntity.getName());
-                    isSuspicious = true;
-                    reasons.add(mlEvaluationResult.reason());
-                }
+                isSuspicious = getEvaluationResult(mlRule, transaction, ruleResults, reasons,
+                        ruleEntity, triggeredRuleNames);
             }
         }
         return new RuleEvaluationResult(isSuspicious, triggeredRuleNames, ruleResults, reasons);
+    }
+
+    private boolean getEvaluationResult(Rule rule, TransactionRequest transaction,
+                                     List<RuleResult> ruleResults, List<String> reasons,
+                                     RuleEntity ruleEntity, List<String> triggeredRuleNames) {
+        boolean suspicious = false;
+        RuleResult mlEvaluationResult = rule.evaluate(transaction);
+        ruleResults.add(mlEvaluationResult);
+        if (mlEvaluationResult.triggered()) {
+            log.info("Ml rule was triggered: {}", ruleEntity.getName());
+            triggeredRuleNames.add(ruleEntity.getName());
+            suspicious = true;
+            reasons.add(mlEvaluationResult.reason());
+        }
+        return suspicious;
     }
 
     private Rule getOrCreatePatternRule(RuleEntity ruleEntity) {

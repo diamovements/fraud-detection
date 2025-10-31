@@ -42,7 +42,7 @@ public class ExporterService {
         }
     }
 
-    public String convertToCsvRow(TransactionEntity transaction) {
+    private String convertToCsvRow(TransactionEntity transaction) {
         return String.join(";",
                 escapeCsvField(transaction.getId().toString()),
                 escapeCsvField(transaction.getCorrelationId()),
@@ -66,7 +66,7 @@ public class ExporterService {
         );
     }
 
-    public String escapeCsvField(String field) {
+    private String escapeCsvField(String field) {
         if (field == null) {
             return "";
         }

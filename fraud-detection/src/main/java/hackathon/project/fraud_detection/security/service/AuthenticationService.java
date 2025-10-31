@@ -36,7 +36,6 @@ public class AuthenticationService {
                 .telegramId(request.telegramId())
                 .build();
         user = userRepository.save(user);
-        log.info("User {} saved, with role {}", user.getLogin(), user.getRole());
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
         return new AuthenticationResponse(accessToken, refreshToken);
@@ -48,7 +47,6 @@ public class AuthenticationService {
                 new UsernamePasswordAuthenticationToken(request.login(), request.password()));
         UserEntity user = userRepository.findByLogin(request.login())
                 .orElseThrow(() -> new IllegalArgumentException("Incorrect login or password"));
-        log.info("User role: {}", user.getRole());
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 

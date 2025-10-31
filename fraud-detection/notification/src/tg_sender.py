@@ -8,9 +8,6 @@ class TelegramBot:
         bot_token: str = None,
         default_user_ids: Union[str, List[str], None] = None
     ):
-        """
-        Простой класс для отправки сообщений пользователям через Telegram бота
-        """
         self.bot_token = bot_token or os.getenv('TELEGRAM_BOT_TOKEN')
         self.base_url = f"https://api.telegram.org/bot{self.bot_token}/"
         
@@ -84,9 +81,6 @@ class TelegramBot:
         user_ids: Union[str, List[str], None] = None,
         priority: str = "medium"
     ) -> bool:
-        """
-        Специальный метод для отправки уведомлений о подозрительных транзакциях
-        """
         if triggered_rules is None:
             triggered_rules = []
         
@@ -96,7 +90,7 @@ class TelegramBot:
         print(f"   account: {account}")
 
         message = f"""
-<b>🚨 Подозрительная операция</b>
+<b>Подозрительная операция</b>
 
 <b>ID транзакции:</b> {transaction_id}
 <b>Счет:</b> {account}

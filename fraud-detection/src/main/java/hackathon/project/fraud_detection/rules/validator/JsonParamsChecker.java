@@ -74,11 +74,10 @@ public abstract class JsonParamsChecker {
     }
 
     protected boolean isInteger(String str) {
-        try{
+        try {
             Integer.parseInt(str);
             return true;
-        }
-        catch (Exception exp){
+        } catch (Exception exp){
             return false;
         }
     }

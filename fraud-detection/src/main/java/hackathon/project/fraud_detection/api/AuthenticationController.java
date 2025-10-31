@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @RequestMapping("/auth")
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
-    private final static String ACCESS_TOKEN = "accessToken";
     private final static String REFRESH_TOKEN = "refreshToken";
 
     @PostMapping("/signup")

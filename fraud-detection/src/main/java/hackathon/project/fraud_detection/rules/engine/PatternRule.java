@@ -45,9 +45,6 @@ public class PatternRule extends Rule {
         this.patternRuleAnalyzer = patternRuleAnalyzer;
         this.patternRuleAnalyzer.setPatternRule(this);
         this.thresholdRule = new ThresholdRule(null, priority, enabled, this.field, this.operator, this.value);
-
-        log.info("Created PatternRule: id={}, by={}, field={}, operator={}, value={}, minCount={}, windowMin={}",
-                id, by, field, operator, value, minCount, windowMin);
     }
 
     @Override
@@ -57,36 +54,23 @@ public class PatternRule extends Rule {
             return new RuleResult(false, null);
         }
 
-        // Сначала проверяем базовое условие
         Object fieldValue = transactionRequest.getFieldValue(field);
-        log.info("PatternRule {}: Checking condition {} {} {} with value {}",
-                id, field, operator, value, fieldValue);
-
         boolean thresholdTriggered = thresholdRule.evaluateCondition(fieldValue, operator, value);
-        log.info("PatternRule {}: Threshold condition triggered: {}", id, thresholdTriggered);
-
         boolean patternTriggered = false;
         String reason = null;
 
         if (thresholdTriggered) {
-            // Получаем значение для группировки
             String byValue = (by != null && !by.isEmpty()) ?
                     String.valueOf(transactionRequest.getFieldValue(by)) : "default";
 
-            log.info("PatternRule {}: Updating map for by='{}' with value='{}'", id, by, byValue);
-
-            // Обновляем карту транзакций
             patternRuleAnalyzer.updateMap(byValue, transactionRequest.timestamp());
 
-            // Проверяем паттерн
             patternTriggered = patternRuleAnalyzer.checkTransaction(byValue, transactionRequest.timestamp(), minCount);
-            log.info("PatternRule {}: Pattern condition triggered: {} (need {} transactions)",
-                    id, patternTriggered, minCount);
 
             if (patternTriggered) {
                 reason = String.format("Pattern detected: %s %s %s occurred %d+ times in last %d minutes for %s",
                         field, operator.getSymbol(), value, minCount, windowMin, by);
-                log.info("PatternRule {} TRIGGERED: {}", id, reason);
+                log.info("PatternRule {} triggered: {}", id, reason);
             }
         } else {
             log.debug("PatternRule {}: Threshold condition not met, skipping pattern check", id);
