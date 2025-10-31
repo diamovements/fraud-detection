@@ -28,7 +28,15 @@
 3. Запустите проект командой Docker compose up -d
 
 Приложение использует .env файл. В рамках хакатона для удобства запуска он расположен в репозитории и имеет все нужные переменные. При необходимости переменные в .env файле можно заменить на свои.
-Переменные: DB_URL, DB_USERNAME, DB_PASSWORD, JWT_SECRET, EMAIL_LOGIN, EMAIL_PASSWORD, BOT_TOKEN,
+```
+DB_URL=jdbc:postgresql://postgres/fraud_detection
+DB_USERNAME=
+DB_PASSWORD=
+JWT_SECRET=
+EMAIL_LOGIN=
+EMAIL_PASSWORD=
+BOT_TOKEN =
+```
 
 Получение user id для бота во время регистрации осуществляется через @FroudDTBot в телеграме. Нужно отправить ему сообщение /start.
 
